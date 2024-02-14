@@ -1,0 +1,12 @@
+.env/
+venv/
+.git/
+.gitignore
+.flake8
+.isort.cfg
+.pre-commit-config.yaml
+compose.yml
+Dockerfile
+LICENSE
+pyproject.toml
+README.md

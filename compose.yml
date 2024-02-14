@@ -1,0 +1,10 @@
+---
+services:
+  analyzer:
+    container_name: analyzer
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/app
+    command: mime.py
