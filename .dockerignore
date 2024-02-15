@@ -10,3 +10,5 @@ Dockerfile
 LICENSE
 pyproject.toml
 README.md
+.vscode/
+.idea/
