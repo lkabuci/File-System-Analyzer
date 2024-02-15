@@ -1,10 +1,9 @@
-from pathlib import Path
 from typing import Union
-
+from pathlib import Path
 
 def walk_through_dir(root_dir: Union[str, Path]) -> None:
     """
-    Recursively walk through the directory and print subdirectories and files.
+    walk through the directory, subdirectories and files.
 
     Args:
         root_dir (Union[str, Path]): The root directory to start the traversal.
@@ -13,17 +12,19 @@ def walk_through_dir(root_dir: Union[str, Path]) -> None:
         None
     """
     root_path = Path(root_dir)
+    stack = [root_path]
 
-    for child in root_path.iterdir():
-        if child.is_dir():
-            print(f"Subdirectory: {child}")
-            try:
-                walk_through_dir(child)  # Recursively call for subdirectories
-            except PermissionError as e:
-                print(f"Permission error accessing directory: {child} {e}. Skipping...")
-        else:
-            try:
-                print(f"File: {child}")
-                # Add your file processing logic here
-            except PermissionError as e:
-                print(f"Permission error accessing file: {child} {e}. Skipping...")
+    while stack:
+        current_path = stack.pop()
+
+        for child in current_path.iterdir():
+            if child.is_dir():
+                # print(f"Subdirectory: {child}")
+                stack.append(child)
+            else:
+                try:
+                    # print(f"File: {child}")
+                    yield child
+                    # Add your file processing logic here
+                except PermissionError as e:
+                    print(f"Permission error accessing file: {child} {e}. Skipping...")
