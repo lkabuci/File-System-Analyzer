@@ -1,10 +1,11 @@
-from rich.table import Table
+import os
+from collections import defaultdict
+
 from rich.console import Console
+from rich.table import Table
+
 from .directory_traversal import walk_through_dir
 
-import os
-from pathlib import PosixPath  # Import PosixPath if not already imported
-from collections import defaultdict
 
 class FileCategorization:
     def __init__(self):
@@ -17,22 +18,264 @@ class FileCategorization:
         self.table.add_column("File Extension")
         self.table.add_column("Number of files")
         self.table.add_column("Size")
-    
+
     def _get_category(self, file_extension):
         category_mapping = {
-            'image': ['.jpg', '.jpeg', '.jfif', '.pjpeg', '.pjp', '.png', '.gif', '.webp', '.svg', '.apng', '.avif'],
-            'audio': ['.3ga', '.aac', '.ac3', '.aif', '.aiff', '.alac', '.amr', '.ape', '.au', '.dss', '.flac', '.flv', '.m4a', '.m4b', '.m4p', '.mp3', '.mpga', '.ogg', '.oga', '.mogg', '.opus', '.qcp', '.tta', '.voc', '.wav', '.wma', '.wv'],
-            'video': ['.webm', '.MTS', '.M2TS', '.TS', '.mov', '.mp4', '.m4p', '.m4v', '.mxf'],
-            'text': ['.txt', '.md'],
-            'code': ['.py', '.java', '.cpp', '.html', '.css', '.js', '.sh', '.bash', '.zsh', '.json', '.yaml', '.xml', '.go', '.rs', '.R'],
-            'linux-related': ['.deb', '.rpm', '.tar', '.gz', '.zip', '.tar.gz', '.tar.xz', '.bz2', '.xz', '.sh', '.bash', '.zsh'],
+            "image": [
+                ".jpg",
+                ".jpeg",
+                ".jfif",
+                ".pjpeg",
+                ".pjp",
+                ".png",
+                ".gif",
+                ".webp",
+                ".svg",
+                ".apng",
+                ".avif",
+            ],
+            "audio": [
+                ".3ga",
+                ".aac",
+                ".ac3",
+                ".aif",
+                ".aiff",
+                ".alac",
+                ".amr",
+                ".ape",
+                ".au",
+                ".dss",
+                ".flac",
+                ".flv",
+                ".m4a",
+                ".m4b",
+                ".m4p",
+                ".mp3",
+                ".mpga",
+                ".ogg",
+                ".oga",
+                ".mogg",
+                ".opus",
+                ".qcp",
+                ".tta",
+                ".voc",
+                ".wav",
+                ".wma",
+                ".wv",
+            ],
+            "video": [
+                ".webm",
+                ".MTS",
+                ".M2TS",
+                ".TS",
+                ".mov",
+                ".mp4",
+                ".m4p",
+                ".m4v",
+                ".mxf",
+            ],
+            "text": [".txt", ".md"],
+            "code": [
+                ".py",
+                ".java",
+                ".cpp",
+                ".html",
+                ".css",
+                ".js",
+                ".sh",
+                ".bash",
+                ".zsh",
+                ".json",
+                ".yaml",
+                ".xml",
+                ".go",
+                ".rs",
+                ".R",
+                ".r",
+                ".php",
+                ".sql",
+                ".pl",
+                ".swift",
+                ".kt",
+                ".kts",
+                ".c",
+                ".h",
+                ".hpp",
+                ".cs",
+                ".ts",
+                ".tsx",
+                ".jsx",
+                ".rb",
+                ".m",
+                ".mm",
+                ".lua",
+                ".dart",
+                ".groovy",
+                ".scala",
+                ".jl",
+                ".f90",
+                ".f",
+            ],
+            "linux-related": [
+                ".deb",
+                ".rpm",
+                ".tar",
+                ".gz",
+                ".zip",
+                ".tar.gz",
+                ".tar.xz",
+                ".bz2",
+                ".xz",
+                ".sh",
+                ".bash",
+                ".zsh",
+            ],
+            "document": [
+                ".pdf",
+                ".doc",
+                ".docx",
+                ".xls",
+                ".xlsx",
+                ".ppt",
+                ".pptx",
+                ".odt",
+                ".ods",
+                ".odp",
+                ".odg",
+                ".odf",
+                ".odc",
+                ".odb",
+                ".odf",
+                ".odm",
+                ".ott",
+                ".ots",
+                ".otp",
+                ".otg",
+                ".otc",
+                ".otf",
+                ".oti",
+                ".otm",
+                ".txt",
+                ".rtf",
+                ".tex",
+                ".csv",
+                ".tsv",
+                ".json",
+                ".yaml",
+                ".xml",
+                ".html",
+                ".htm",
+                ".xhtml",
+                ".epub",
+                ".mobi",
+                ".azw",
+                ".azw3",
+                ".azw4",
+                ".azw8",
+                ".fb2",
+                ".lit",
+                ".prc",
+                ".pdb",
+                ".pml",
+                ".rb",
+                ".snb",
+                ".tcr",
+                ".txtz",
+                ".cbr",
+                ".cbz",
+                ".cb7",
+                ".cbt",
+                ".cba",
+                ".djvu",
+                ".djv",
+                ".doc",
+                ".docx",
+                ".odt",
+                ".pdf",
+                ".rtf",
+                ".txt",
+                ".xls",
+                ".xlsx",
+                ".ods",
+                ".odp",
+                ".ppt",
+                ".pptx",
+                ".odg",
+                ".odf",
+                ".odc",
+                ".odb",
+                ".odf",
+                ".odm",
+                ".ott",
+                ".ots",
+                ".otp",
+                ".otg",
+                ".otc",
+                ".otf",
+                ".oti",
+                ".otm",
+                ".txt",
+                ".rtf",
+                ".tex",
+                ".csv",
+                ".tsv",
+                ".json",
+                ".yaml",
+                ".xml",
+                ".html",
+                ".htm",
+                ".xhtml",
+                ".epub",
+                ".mobi",
+                ".azw",
+                ".azw3",
+                ".azw4",
+                ".azw8",
+                ".fb2",
+                ".lit",
+                ".prc",
+                ".pdb",
+                ".pml",
+                ".rb",
+                ".snb",
+                ".tcr",
+                ".txtz",
+                ".cbr",
+                ".cbz",
+                ".cb7",
+                ".cbt",
+                ".cba",
+                ".djvu",
+                ".djv",
+                ".doc",
+                ".docx",
+                ".odt",
+                ".pdf",
+                ".rtf",
+                ".txt",
+                ".xls",
+                ".xlsx",
+                ".ods",
+                ".odp",
+                ".ppt",
+                ".pptx",
+                ".odg",
+                ".odf",
+                ".odc",
+                ".odb",
+                ".odf",
+                ".odm",
+                ".ott",
+                ".ots",
+                ".otp",
+            ],
         }
 
         for category, extensions in category_mapping.items():
             if file_extension.lower() in extensions:
                 return category
-        return 'Other'
-    
+        return "Other"
+
     def _classify_file(self, filename):
         filename_str = str(filename)
         _, file_extension = os.path.splitext(filename_str)
@@ -41,7 +284,7 @@ class FileCategorization:
             "file_path": filename_str,
             "file_extension": file_extension,
             "category": category,
-            "size": os.path.getsize(filename_str)  # Retrieve the file size
+            "size": os.path.getsize(filename_str),  # Retrieve the file size
         }
 
     def add_file(self, filename):
@@ -65,17 +308,24 @@ class FileCategorization:
         # Update the summary table based on grouped files
         for category, extensions in self.grouped_files.items():
             for extension, count in extensions.items():
-                size = sum(self._classify_file(filename)["size"] for filename in walk_through_dir(".") if self._get_category(os.path.splitext(filename)[1]) == category and os.path.splitext(filename)[1] == extension)
-                
+                size = sum(
+                    self._classify_file(filename)["size"]
+                    for filename in walk_through_dir(".")
+                    if self._get_category(os.path.splitext(filename)[1]) == category
+                    and os.path.splitext(filename)[1] == extension
+                )
+
                 # Add a border only when the category changes
                 if last_category is not None and category != last_category:
                     new_table.add_row("", "", "", "")
 
                 new_table.add_row(
-                    category if category != last_category else "",  # Only display category if it changes
+                    (
+                        category if category != last_category else ""
+                    ),  # Only display category if it changes
                     extension,
                     str(count),
-                    f"{size} bytes"
+                    f"{size} bytes",
                 )
 
                 last_category = category
@@ -87,4 +337,3 @@ class FileCategorization:
         console = Console()
         self.update_table()
         console.print(self.table)
-

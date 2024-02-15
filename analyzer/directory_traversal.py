@@ -1,5 +1,6 @@
-from typing import Union
 from pathlib import Path
+from typing import Union
+
 
 def walk_through_dir(root_dir: Union[str, Path]) -> None:
     """
@@ -19,12 +20,9 @@ def walk_through_dir(root_dir: Union[str, Path]) -> None:
 
         for child in current_path.iterdir():
             if child.is_dir():
-                # print(f"Subdirectory: {child}")
                 stack.append(child)
             else:
                 try:
-                    # print(f"File: {child}")
                     yield child
-                    # Add your file processing logic here
                 except PermissionError as e:
                     print(f"Permission error accessing file: {child} {e}. Skipping...")
