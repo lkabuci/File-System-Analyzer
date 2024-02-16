@@ -1,13 +1,19 @@
 import os
+from pathlib import Path
 from typing import List
 
+from pydantic import BaseModel
 from rich import print
 from rich.table import Table
 
 
 class FilePermissionsChecker:
+    class FilePermissionReport(BaseModel):
+        file_path: Path
+        permissions: str
+
     def __init__(self) -> None:
-        self.reported_files: List[str] = []
+        self.reported_files: List[Path] = []
         self.bad_permissions: List[str] = [
             "777",  # Full permissions for everyone
             "776",
@@ -30,57 +36,67 @@ class FilePermissionsChecker:
             "555",
             "700",
             "600",
-            "444",
             "400",
             "200",
             "100",
             "000",
         ]
 
-    def check_permissions(self, filepath: str) -> None:
-        file_stat = os.stat(filepath)
+    def check_permissions(self, file_path: Path) -> None:
+        file_stat = os.stat(file_path)
         octal_permissions = oct(file_stat.st_mode)[-3:]
         if octal_permissions in self.bad_permissions:
-            self.reported_files.append(filepath)
+            self.reported_files.append(file_path)
 
-    def report_permissions(self) -> None:
-        """
-        Report the permissions of the files in the PermissionReporter's list.
-
-        Prints the file path along with its permissions in rwx format in a table.
-
-        Raises:
-            - FileNotFoundError: If a file from the list is not found.
-            - Exception: If an unexpected error occurs during processing.
-        """
-        table = Table(title="Permission Report")
-        table.add_column("File", style="blue")
-        table.add_column("Permissions", style="green")
-
+    def generate_permission_report(self) -> List[FilePermissionReport]:
+        reports = []
         for file_path in self.reported_files:
             try:
-                # Get the file permissions as an integer
-                permissions = os.stat(file_path).st_mode
+                permissions_int = os.stat(file_path).st_mode
+                permissions_str = oct(permissions_int)[-3:]
+                rwx_permissions = self._convert_octal_to_rwx(permissions_str)
 
-                # Convert the integer to a string representation in octal format
-                permissions_str = oct(permissions)[-3:]
-
-                # Convert octal permissions to rwx format without list comprehension
-                rwx_permissions = ""
-                for i in range(0, 3):
-                    rwx_permissions += "r" if int(permissions_str[i]) & 4 else "-"
-                    rwx_permissions += "w" if int(permissions_str[i]) & 2 else "-"
-                    rwx_permissions += "x" if int(permissions_str[i]) & 1 else "-"
-
-                # Add row to the table
-                table.add_row(file_path, rwx_permissions)
-            except FileNotFoundError:
-                # Add row for file not found
-                table.add_row(f"[red]{file_path}[/red]", "File not found")
-            except Exception as e:
-                # Add row for other errors
-                table.add_row(
-                    f"[red]{file_path}[/red]", f"[bold red]Error: {e}[/bold red]"
+                report_entry = self.FilePermissionReport(
+                    file_path=file_path, permissions=rwx_permissions
                 )
 
-        print(table)
+                reports.append(report_entry)
+            except FileNotFoundError:
+                # Handle file not found exception
+                reports.append(
+                    self.FilePermissionReport(
+                        file_path=file_path, permissions="File not found"
+                    )
+                )
+            except Exception as e:
+                # Handle other exceptions
+                reports.append(
+                    self.FilePermissionReport(
+                        file_path=file_path, permissions=f"Error: {e}"
+                    )
+                )
+
+        return reports
+
+    def print_permission_report(self) -> None:
+        reports = self.generate_permission_report()
+
+        if reports:
+            table = Table(title="Permission Report")
+            table.add_column("File", style="blue")
+            table.add_column("Permissions", style="green")
+
+            for report_entry in reports:
+                table.add_row(str(report_entry.file_path), report_entry.permissions)
+
+            print(table)
+        else:
+            print("No files with bad permissions found.")
+
+    def _convert_octal_to_rwx(self, octal_permissions: str) -> str:
+        rwx_permissions = ""
+        for digit in octal_permissions:
+            rwx_permissions += "r" if int(digit) & 4 else "-"
+            rwx_permissions += "w" if int(digit) & 2 else "-"
+            rwx_permissions += "x" if int(digit) & 1 else "-"
+        return rwx_permissions

@@ -1,6 +1,8 @@
 import os
 from collections import defaultdict
+from pathlib import Path
 
+from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 
@@ -8,18 +10,21 @@ from .directory_traversal import walk_through_dir
 
 
 class FileCategorization:
+    class FileInfo(BaseModel):
+        file_path: str
+        file_extension: str
+        category: str
+        size: int
+
     def __init__(self):
-        self.categories = {}
-        self.total_files = 0
-        self.total_size = 0
         self.grouped_files = defaultdict(lambda: defaultdict(int))
         self.table = Table(title="File Summary")
         self.table.add_column("Category")
         self.table.add_column("File Extension")
-        self.table.add_column("Number of files")
+        self.table.add_column("Number of Files")
         self.table.add_column("Size")
 
-    def _get_category(self, file_extension):
+    def _get_category(self, file_extension: str) -> str:
         category_mapping = {
             "image": [
                 ".jpg",
@@ -276,53 +281,45 @@ class FileCategorization:
                 return category
         return "Other"
 
-    def _classify_file(self, filename):
+    def _classify_file(self, filename: Path) -> FileInfo:
         filename_str = str(filename)
         _, file_extension = os.path.splitext(filename_str)
         category = self._get_category(file_extension)
-        return {
-            "file_path": filename_str,
-            "file_extension": file_extension,
-            "category": category,
-            "size": os.path.getsize(filename_str),  # Retrieve the file size
-        }
+        size = os.path.getsize(filename_str)
+        return self.FileInfo(
+            file_path=filename_str,
+            file_extension=file_extension,
+            category=category,
+            size=size,
+        )
 
-    def add_file(self, filename):
+    def add_file(self, filename: Path) -> None:
         file_info = self._classify_file(filename)
+        self.grouped_files[file_info.category][file_info.file_extension] += 1
 
-        # Update the grouped files and total size
-        self.grouped_files[file_info["category"]][file_info["file_extension"]] += 1
-        self.total_size += file_info["size"]
-
-    def update_table(self):
-        # Create a new table
+    def update_table(self) -> None:
         new_table = Table(title="File Summary")
         new_table.add_column("Category")
         new_table.add_column("File Extension")
-        new_table.add_column("Number of files")
+        new_table.add_column("Number of Files")
         new_table.add_column("Size")
 
-        # Keep track of the last category to add borders
         last_category = None
 
-        # Update the summary table based on grouped files
         for category, extensions in self.grouped_files.items():
             for extension, count in extensions.items():
                 size = sum(
-                    self._classify_file(filename)["size"]
-                    for filename in walk_through_dir(".")
-                    if self._get_category(os.path.splitext(filename)[1]) == category
-                    and os.path.splitext(filename)[1] == extension
+                    self._classify_file(Path(file)).size
+                    for file in walk_through_dir(".")
+                    if self._get_category(os.path.splitext(file)[1]) == category
+                    and os.path.splitext(file)[1] == extension
                 )
 
-                # Add a border only when the category changes
                 if last_category is not None and category != last_category:
                     new_table.add_row("", "", "", "")
 
                 new_table.add_row(
-                    (
-                        category if category != last_category else ""
-                    ),  # Only display category if it changes
+                    category if category != last_category else "",
                     extension,
                     str(count),
                     f"{size} bytes",
@@ -330,10 +327,9 @@ class FileCategorization:
 
                 last_category = category
 
-        # Assign the new table to the existing one
         self.table = new_table
 
-    def display_summary(self):
+    def display_summary(self) -> None:
         console = Console()
         self.update_table()
         console.print(self.table)
