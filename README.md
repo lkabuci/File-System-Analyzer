@@ -55,7 +55,7 @@ command-line tool that analyzes and reports on the file system structure and usa
   <a href="#license">License</a>
 </p>
 
-![Demo]()
+https://github.com/kaboussi/File-System-Analyzer/assets/95357302/68507fcf-5fab-482e-b0f6-ebbb1999d942
 
 
 
