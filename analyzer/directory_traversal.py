@@ -1,16 +1,16 @@
 from pathlib import Path
-from typing import Union
+from typing import Generator, Union
 
 
-def walk_through_dir(root_dir: Union[str, Path]) -> None:
+def walk_through_dir(root_dir: Union[str, Path]) -> Generator[Path, None, None]:
     """
-    walk through the directory, subdirectories and files.
+    Walk through the directory, subdirectories, and files.
 
     Args:
         root_dir (Union[str, Path]): The root directory to start the traversal.
 
-    Returns:
-        None
+    Yields:
+        Generator[Path, None, None]: Yields FileInfo objects for each file in the directory tree.
     """
     root_path = Path(root_dir)
     stack = [root_path]

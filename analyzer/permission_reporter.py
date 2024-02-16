@@ -1,9 +1,8 @@
-import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional, Union
 
 from pydantic import BaseModel
-from rich import print
+from rich import print, prompt
 from rich.table import Table
 
 
@@ -43,7 +42,7 @@ class FilePermissionsChecker:
         ]
 
     def check_permissions(self, file_path: Path) -> None:
-        file_stat = os.stat(file_path)
+        file_stat = file_path.stat()
         octal_permissions = oct(file_stat.st_mode)[-3:]
         if octal_permissions in self.bad_permissions:
             self.reported_files.append(file_path)
@@ -52,7 +51,7 @@ class FilePermissionsChecker:
         reports = []
         for file_path in self.reported_files:
             try:
-                permissions_int = os.stat(file_path).st_mode
+                permissions_int = file_path.stat().st_mode
                 permissions_str = oct(permissions_int)[-3:]
                 rwx_permissions = self._convert_octal_to_rwx(permissions_str)
 
@@ -90,6 +89,9 @@ class FilePermissionsChecker:
                 table.add_row(str(report_entry.file_path), report_entry.permissions)
 
             print(table)
+
+            # Prompt the user to delete reported files
+            self.prompt_to_delete_files()
         else:
             print("No files with bad permissions found.")
 
@@ -104,3 +106,21 @@ class FilePermissionsChecker:
             rwx_permissions += "w" if int(digit) & 2 else "-"
             rwx_permissions += "x" if int(digit) & 1 else "-"
         return rwx_permissions
+
+    def prompt_to_delete_files(self) -> None:
+        if not self.reported_files:
+            return
+
+        confirm_message = "Do you want to delete the reported files?"
+        confirmation = prompt.Confirm.ask(confirm_message)
+
+        if confirmation:
+            self.delete_reported_files()
+
+    def delete_reported_files(self) -> None:
+        for file_path in self.reported_files:
+            try:
+                file_path.unlink()
+                print(f"[green]Deleted:[/green] {file_path}")
+            except Exception as e:
+                print(f"[red]Error deleting file {file_path}:[/red] {e}")
