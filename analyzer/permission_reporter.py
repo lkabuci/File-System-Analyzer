@@ -95,7 +95,11 @@ class FilePermissionsChecker:
 
     def _convert_octal_to_rwx(self, octal_permissions: str) -> str:
         rwx_permissions = ""
+        if not octal_permissions:
+            raise ValueError("Empty octal string")
         for digit in octal_permissions:
+            if digit < "0" or digit > "7":
+                raise ValueError("Invalid octal digit")
             rwx_permissions += "r" if int(digit) & 4 else "-"
             rwx_permissions += "w" if int(digit) & 2 else "-"
             rwx_permissions += "x" if int(digit) & 1 else "-"
