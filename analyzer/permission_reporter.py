@@ -90,8 +90,6 @@ class FilePermissionsChecker:
 
             print(table)
 
-            # Prompt the user to delete reported files
-            self.prompt_to_delete_files()
         else:
             print("No files with bad permissions found.")
 
@@ -106,16 +104,6 @@ class FilePermissionsChecker:
             rwx_permissions += "w" if int(digit) & 2 else "-"
             rwx_permissions += "x" if int(digit) & 1 else "-"
         return rwx_permissions
-
-    def prompt_to_delete_files(self) -> None:
-        if not self.reported_files:
-            return
-
-        confirm_message = "Do you want to delete the reported files?"
-        confirmation = prompt.Confirm.ask(confirm_message)
-
-        if confirmation:
-            self.delete_reported_files()
 
     def delete_reported_files(self) -> None:
         for file_path in self.reported_files:

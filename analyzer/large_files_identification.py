@@ -2,8 +2,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from pydantic import BaseModel
-from rich import console, print
-from rich.prompt import Confirm
+from rich import print
 from rich.table import Table
 
 
@@ -41,11 +40,6 @@ class LargeFileIdentifier:
             table.add_row(str(entry.file_path), str(entry.size))
 
         print(table)
-
-        # Ask the user if they want to delete the reported files
-        confirm = Confirm.ask("Do you want to delete the reported files?")
-        if confirm:
-            self.delete_reported_files()
 
     def delete_reported_files(self) -> None:
         for entry in self.large_files:
