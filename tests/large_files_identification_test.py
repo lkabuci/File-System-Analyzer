@@ -52,9 +52,13 @@ def test_large_file_identifier_scan_and_report(
     captured = capsys.readouterr()
     assert "Large Files" in captured.out
 
-    # Prompt for deletion
-    assert "Do you want to delete the reported files?" in captured.out
-    assert "Deleted" not in captured.out  # Check that no deletion message is present
+    # Check if the large file entry is present in the output
+    assert str(large_file) in captured.out
+    assert str(2048) in captured.out
+
+    # Check if the small file entry is not present in the output
+    assert str(small_file) not in captured.out
+    assert str(512) not in captured.out
 
 
 def test_large_file_identifier_delete_reported_files(
