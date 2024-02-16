@@ -6,13 +6,13 @@ from analyzer.utils.parser import parse_args
 
 
 def main():
-    file_categorization = FileCategorization()
-    permissions_checker = FilePermissionsChecker()
-    large_file_identifier = LargeFileIdentifier()
-
-    dir_path = parse_args()
+    dir_path, size = parse_args()
     if dir_path is None:
         exit(1)
+
+    file_categorization = FileCategorization()
+    permissions_checker = FilePermissionsChecker()
+    large_file_identifier = LargeFileIdentifier(size)
 
     for file_path in walk_through_dir(dir_path):
         file_categorization.add_file(file_path)

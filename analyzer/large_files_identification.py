@@ -12,10 +12,11 @@ class LargeFileIdentifier:
         file_path: Path
         size: int
 
-    def __init__(
-        self, size_threshold: Optional[int] = 1024 * 1024
-    ):  # Default size threshold is 1 MB
-        self.size_threshold = size_threshold
+    def __init__(self, size_threshold: Optional[int] = None):
+        # Default size threshold is 1 MB
+        self.size_threshold = (
+            size_threshold if size_threshold is not None else 1024 * 1024
+        )
         self.large_files: List[LargeFileIdentifier.FileEntry] = []
 
     def add_file(self, file_path: Path) -> None:
