@@ -1,9 +1,7 @@
-from pathlib import Path
-
 from analyzer.directory_traversal import walk_through_dir
 from analyzer.file_categorization import FileCategorization
-from analyzer.parser.parser import parse_args
 from analyzer.permission_reporter import FilePermissionsChecker
+from analyzer.utils.parser import parse_args
 
 
 def main():

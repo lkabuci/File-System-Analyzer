@@ -5,6 +5,4 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-      - ./:/app
-    command: mime.py
+    tty: true

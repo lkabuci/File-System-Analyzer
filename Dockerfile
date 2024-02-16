@@ -13,4 +13,6 @@ RUN apt-get update &&\
     pip install --no-cache -r /tmp/requirements.txt &&\
     rm -rf /var/lib/apt/lists/*
 
-ENTRYPOINT [ "python3" ]
+COPY . /app
+
+ENTRYPOINT [ "pytest", "-v", "tests/" ]
