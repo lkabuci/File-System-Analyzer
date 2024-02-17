@@ -9,8 +9,16 @@ from rich.table import Table
 
 from .directory_traversal import walk_through_dir
 
+# def _get_category(file_extension: str) -> str:
+#     }
+#
+#     for category, extensions in category_mapping.items():
+#         if file_extension.lower() in extensions:
+#             return category
+#     return "Other"
 
-def _get_category(file_extension: str) -> str:
+
+class FileCategorization:
     category_mapping = {
         "image": [
             ".jpg",
@@ -142,13 +150,6 @@ def _get_category(file_extension: str) -> str:
         ],
     }
 
-    for category, extensions in category_mapping.items():
-        if file_extension.lower() in extensions:
-            return category
-    return "Other"
-
-
-class FileCategorization:
     class FileInfo(BaseModel):
         file_path: str
         file_extension: str
@@ -156,7 +157,12 @@ class FileCategorization:
         size: int
 
     def __init__(self):
-        self.grouped_files = defaultdict(lambda: defaultdict(int))
+        self.grouped_files = defaultdict(
+            lambda: defaultdict(lambda: {"count": 0, "size": 0})
+        )
+        self.extension_to_category = {
+            ext: cat for cat, exts in self.category_mapping.items() for ext in exts
+        }
         self.table = Table(title="File Summary")
         self.table.add_column("Category")
         self.table.add_column("File Extension")
@@ -166,7 +172,7 @@ class FileCategorization:
     def _classify_file(self, filename: Path) -> FileInfo:
         filename_str = str(filename)
         _, file_extension = os.path.splitext(filename_str)
-        category = _get_category(file_extension)
+        category = self._get_category(file_extension)
         try:
             size = os.path.getsize(filename_str)
         except FileNotFoundError:
@@ -180,7 +186,9 @@ class FileCategorization:
 
     def add_file(self, filename: Path) -> None:
         file_info = self._classify_file(filename)
-        self.grouped_files[file_info.category][file_info.file_extension] += 1
+        category = file_info.category
+        self.grouped_files[category][file_info.file_extension]["count"] += 1
+        self.grouped_files[category][file_info.file_extension]["size"] += file_info.size
 
     def update_table(self, size_unit: str = "bytes") -> None:
         new_table = Table(title="File Summary")
@@ -192,15 +200,8 @@ class FileCategorization:
         last_category = None
 
         for category, extensions in self.grouped_files.items():
-            for extension, count in extensions.items():
-                size = sum(
-                    self._classify_file(Path(file)).size
-                    for file in walk_through_dir(".")
-                    if _get_category(os.path.splitext(file)[1]) == category
-                    and os.path.splitext(file)[1] == extension
-                )
-
-                size = self._convert_size(size, size_unit)
+            for extension, file_data in extensions.items():
+                size = self._convert_size(file_data["size"], size_unit)
 
                 if last_category is not None and category != last_category:
                     new_table.add_row("", "", "", "")
@@ -208,7 +209,7 @@ class FileCategorization:
                 new_table.add_row(
                     category if category != last_category else "",
                     extension,
-                    str(count),
+                    str(file_data["count"]),
                     f"{size} {size_unit}",
                 )
 
@@ -221,6 +222,12 @@ class FileCategorization:
         converted_size = size_in_bytes.best_prefix(system=NIST)
         converted_size_str = "{:.2f} {}".format(converted_size.value, target_unit)
         return converted_size_str
+
+    def _get_category(self, file_extension: str) -> str:
+        for category, extensions in self.category_mapping.items():
+            if file_extension.lower() in extensions:
+                return category
+        return "Other"
 
     def display_summary(self, size_unit: str = "bytes") -> None:
         console = Console()
