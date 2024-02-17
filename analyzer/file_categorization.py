@@ -220,7 +220,7 @@ class FileCategorization:
         file_info = self._classify_file(filename)
         self.grouped_files[file_info.category][file_info.file_extension] += 1
 
-    def update_table(self) -> None:
+    def update_table(self, size_unit: str = "bytes") -> None:
         new_table = Table(title="File Summary")
         new_table.add_column("Category")
         new_table.add_column("File Extension")
@@ -238,6 +238,8 @@ class FileCategorization:
                     and os.path.splitext(file)[1] == extension
                 )
 
+                size = self._convert_size(size, size_unit)
+
                 if last_category is not None and category != last_category:
                     new_table.add_row("", "", "", "")
 
@@ -245,14 +247,22 @@ class FileCategorization:
                     category if category != last_category else "",
                     extension,
                     str(count),
-                    f"{size} bytes",
+                    f"{size} {size_unit}",
                 )
 
                 last_category = category
 
         self.table = new_table
 
-    def display_summary(self) -> None:
+    def _convert_size(self, size: int, target_unit: str) -> str:
+        units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
+        current_unit = 0
+        while size > 1024 and current_unit < units[target_unit]:
+            size /= 1024.0
+            current_unit += 1
+        return f"{size:.2f} {target_unit}"
+
+    def display_summary(self, size_unit: str = "bytes") -> None:
         console = Console()
-        self.update_table()
+        self.update_table(size_unit=size_unit)
         console.print(self.table)

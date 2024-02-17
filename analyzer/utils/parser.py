@@ -4,7 +4,9 @@ from pathlib import Path
 from typing import Optional
 
 
-def parse_args() -> Optional[tuple[Path, Optional[int], bool, Optional[str]]]:
+def parse_args() -> (
+    Optional[tuple[Path, Optional[int], bool, Optional[str], Optional[str]]]
+):
     """
     Parse command-line arguments.
 
@@ -19,6 +21,12 @@ def parse_args() -> Optional[tuple[Path, Optional[int], bool, Optional[str]]]:
     parser.add_argument("path", help="Path to the target directory")
     parser.add_argument(
         "-s", "--size", type=int, help="Optional size threshold for large files"
+    )
+    parser.add_argument(
+        "--size-unit",
+        choices=["bytes", "KB", "MB", "GB"],
+        default="bytes",
+        help="Unit for displaying size in the summary table (default: bytes)",
     )
     parser.add_argument(
         "-d", "--delete", action="store_true", help="Enable file deletion prompt"
@@ -47,4 +55,4 @@ def parse_args() -> Optional[tuple[Path, Optional[int], bool, Optional[str]]]:
         print("Error: The target path is not a directory.")
         return None
 
-    return target_dir, size_threshold, delete_files, log_file
+    return target_dir, size_threshold, delete_files, log_file, args.size_unit

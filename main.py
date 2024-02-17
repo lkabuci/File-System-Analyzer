@@ -43,10 +43,7 @@ def log_intro(logger, dir_path, size_threshold, delete_files, log_file):
 
 
 def process_directory(
-    dir_path: Path,
-    size_threshold: Optional[int],
-    delete_files: bool,
-    log_file: Optional[str],
+    dir_path, size_threshold, delete_files, log_file, size_unit="bytes"
 ) -> None:
     """
     Process the target directory.
@@ -59,14 +56,14 @@ def process_directory(
     """
     file_categorization = FileCategorization()
     permissions_checker = FilePermissionsChecker()
-    large_file_identifier = LargeFileIdentifier(size_threshold)
+    large_file_identifier = LargeFileIdentifier(size_threshold=size_threshold)
 
     for file_path in walk_through_dir(dir_path):
         file_categorization.add_file(file_path)
         permissions_checker.check_permissions(file_path)
-        large_file_identifier.add_file(file_path)
+        large_file_identifier.add_file(file_path, size_unit=size_unit)
 
-    file_categorization.display_summary()
+    file_categorization.display_summary(size_unit=size_unit)
     permissions_checker.print_permission_report()
 
     if delete_files and permissions_checker.reported_files and not log_file:
@@ -74,7 +71,7 @@ def process_directory(
         if confirm:
             permissions_checker.delete_reported_files()
 
-    large_file_identifier.scan_and_report()
+    large_file_identifier.scan_and_report(size_unit=size_unit)
 
     if delete_files and large_file_identifier.large_files and not log_file:
         confirm = Confirm.ask("Do you want to delete the large files?")
@@ -83,7 +80,7 @@ def process_directory(
 
 
 def main():
-    dir_path, size_threshold, delete_files, log_file = parse_args()
+    dir_path, size_threshold, delete_files, log_file, size_unit = parse_args()
     if dir_path is None:
         exit(1)
 
@@ -96,7 +93,9 @@ def main():
 
     configure_log_file(log_file)
     log_intro(logger, dir_path, size_threshold, delete_files, log_file)
-    process_directory(dir_path, size_threshold, delete_files, log_file)
+    process_directory(
+        dir_path, size_threshold, delete_files, log_file, size_unit=size_unit
+    )
 
 
 if __name__ == "__main__":
