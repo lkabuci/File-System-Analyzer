@@ -257,10 +257,10 @@ class FileCategorization:
     def _convert_size(self, size: int, target_unit: str) -> str:
         units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
         current_unit = 0
-        while size > 1024 and current_unit < units[target_unit]:
+        while current_unit < units[target_unit]:
             size /= 1024.0
             current_unit += 1
-        return f"{size:.2f} {target_unit}"
+        return f"{size:.2f}"
 
     def display_summary(self, size_unit: str = "bytes") -> None:
         console = Console()
