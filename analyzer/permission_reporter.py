@@ -1,8 +1,8 @@
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import List
 
 from pydantic import BaseModel
-from rich import print, prompt
+from rich import print
 from rich.table import Table
 
 
@@ -42,10 +42,13 @@ class FilePermissionsChecker:
         ]
 
     def check_permissions(self, file_path: Path) -> None:
-        file_stat = file_path.stat()
-        octal_permissions = oct(file_stat.st_mode)[-3:]
-        if octal_permissions in self.bad_permissions:
-            self.reported_files.append(file_path)
+        try:
+            file_stat = file_path.stat()
+            octal_permissions = oct(file_stat.st_mode)[-3:]
+            if octal_permissions in self.bad_permissions:
+                self.reported_files.append(file_path)
+        except FileNotFoundError:
+            print(f"[red]File not found:[/red] {file_path}")
 
     def generate_permission_report(self) -> List[FilePermissionReport]:
         reports = []
