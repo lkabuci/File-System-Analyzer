@@ -2,6 +2,7 @@ import os
 from collections import defaultdict
 from pathlib import Path
 
+from bitmath import NIST, Byte
 from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
@@ -137,46 +138,7 @@ def _get_category(file_extension: str) -> str:
             ".odb",
             ".odm",
             ".ott",
-            ".ots",
-            ".otp",
-            ".otg",
-            ".otc",
-            ".otf",
-            ".oti",
-            ".otm",
-            ".txt",
-            ".rtf",
-            ".tex",
-            ".csv",
-            ".tsv",
-            ".json",
-            ".yaml",
-            ".xml",
-            ".html",
-            ".htm",
-            ".xhtml",
             ".epub",
-            ".mobi",
-            ".azw",
-            ".azw3",
-            ".azw4",
-            ".azw8",
-            ".fb2",
-            ".lit",
-            ".prc",
-            ".pdb",
-            ".pml",
-            ".rb",
-            ".snb",
-            ".tcr",
-            ".txtz",
-            ".cbr",
-            ".cbz",
-            ".cb7",
-            ".cbt",
-            ".cba",
-            ".djvu",
-            ".djv",
         ],
     }
 
@@ -255,12 +217,10 @@ class FileCategorization:
         self.table = new_table
 
     def _convert_size(self, size: int, target_unit: str) -> str:
-        units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
-        current_unit = 0
-        while current_unit < units[target_unit]:
-            size /= 1024.0
-            current_unit += 1
-        return f"{size:.2f}"
+        size_in_bytes = Byte(size)
+        converted_size = size_in_bytes.best_prefix(system=NIST)
+        converted_size_str = "{:.2f} {}".format(converted_size.value, target_unit)
+        return converted_size_str
 
     def display_summary(self, size_unit: str = "bytes") -> None:
         console = Console()
