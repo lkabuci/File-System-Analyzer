@@ -70,6 +70,7 @@ https://github.com/kaboussi/File-System-Analyzer/assets/95357302/68507fcf-5fab-4
 * Log the output of the program to a file.
 * The CLI configuration in one file.
 * Run the program in a Docker container.
+* Integrated with GitHub Actions for CI/CD.
 
 ## Installation
 
