@@ -3,42 +3,37 @@ from pathlib import Path
 
 import pytest
 
-from analyzer.permission_reporter import FilePermissionsChecker
+from analyzer.permission_reporter import FilePermissionsChecker, convert_octal_to_rwx
 
 
 def test_convert_octal_to_rwx():
-    checker = FilePermissionsChecker()
-    assert checker._convert_octal_to_rwx("777") == "rwxrwxrwx"
-    assert checker._convert_octal_to_rwx("666") == "rw-rw-rw-"
-    assert checker._convert_octal_to_rwx("400") == "r--------"
-    assert checker._convert_octal_to_rwx("644") == "rw-r--r--"
-    assert checker._convert_octal_to_rwx("000") == "---------"
+    assert convert_octal_to_rwx("777") == "rwxrwxrwx"
+    assert convert_octal_to_rwx("666") == "rw-rw-rw-"
+    assert convert_octal_to_rwx("400") == "r--------"
+    assert convert_octal_to_rwx("644") == "rw-r--r--"
+    assert convert_octal_to_rwx("000") == "---------"
 
 
 def test_convert_octal_to_rwx_with_invalid_input():
-    checker = FilePermissionsChecker()
     with pytest.raises(ValueError):
-        checker._convert_octal_to_rwx("888")
+        convert_octal_to_rwx("888")
 
 
 def test_convert_octal_to_rwx_with_non_string_input():
-    checker = FilePermissionsChecker()
     with pytest.raises(TypeError):
-        checker._convert_octal_to_rwx(777)
+        convert_octal_to_rwx(777)
 
 
 def test_convert_octal_to_rwx_with_empty_string():
-    checker = FilePermissionsChecker()
     with pytest.raises(ValueError):
-        checker._convert_octal_to_rwx("")
+        convert_octal_to_rwx("")
 
 
 def test_convert_octal_to_rwx_with_partial_octal():
-    checker = FilePermissionsChecker()
-    assert checker._convert_octal_to_rwx("7") == "rwx"
-    assert checker._convert_octal_to_rwx("6") == "rw-"
-    assert checker._convert_octal_to_rwx("4") == "r--"
-    assert checker._convert_octal_to_rwx("0") == "---"
+    assert convert_octal_to_rwx("7") == "rwx"
+    assert convert_octal_to_rwx("6") == "rw-"
+    assert convert_octal_to_rwx("4") == "r--"
+    assert convert_octal_to_rwx("0") == "---"
 
 
 def test_check_permissions():

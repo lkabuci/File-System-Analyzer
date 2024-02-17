@@ -2,6 +2,7 @@ import logging
 import sys
 from datetime import datetime
 from pathlib import Path
+from typing import Optional
 
 from rich.prompt import Confirm
 
@@ -41,12 +42,16 @@ def log_intro(logger, dir_path, size_threshold, delete_files, log_file):
     logger.info("=" * 50)
 
 
-def process_directory(logger, dir_path, size_threshold, delete_files, log_file):
+def process_directory(
+    dir_path: Path,
+    size_threshold: Optional[int],
+    delete_files: bool,
+    log_file: Optional[str],
+) -> None:
     """
     Process the target directory.
 
     Args:
-        logger (logging.Logger): Logger instance.
         dir_path (Path): Path to the target directory.
         size_threshold (Optional[int]): Size threshold for large files.
         delete_files (bool): Whether to delete reported files.
@@ -91,7 +96,7 @@ def main():
 
     configure_log_file(log_file)
     log_intro(logger, dir_path, size_threshold, delete_files, log_file)
-    process_directory(logger, dir_path, size_threshold, delete_files, log_file)
+    process_directory(dir_path, size_threshold, delete_files, log_file)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from analyzer.file_categorization import FileCategorization

@@ -1,5 +1,3 @@
-from pathlib import Path
-
 import pytest
 
 from analyzer.directory_traversal import walk_through_dir
