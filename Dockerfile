@@ -6,8 +6,7 @@ COPY requirements.txt /tmp/requirements.txt
 
 WORKDIR /app
 
-RUN apt-get update &&\
-    apt-get install -y --no-install-recommends libmagic1 &&\
+RUN set -ex &&\
     python3 -m venv $VIRTUAL_ENV &&\
     pip install --upgrade pip &&\
     pip install --no-cache -r /tmp/requirements.txt &&\
