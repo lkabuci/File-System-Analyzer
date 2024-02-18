@@ -68,6 +68,7 @@ https://github.com/kaboussi/File-System-Analyzer/assets/95357302/68507fcf-5fab-4
 * Identify and list files above a certain size threshold.
 * Delete reported files if the user chooses to do so.
 * Log the output of the program to a file.
+* Ability to choose the size unit (e.g., KB, MB, GB, etc.)
 * The CLI configuration in one file.
 * Run the program in a Docker container.
 * Integrated with GitHub Actions for CI/CD.
