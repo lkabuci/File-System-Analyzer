@@ -8,6 +8,7 @@ from rich.prompt import Confirm
 
 from analyzer.directory_traversal import walk_through_dir
 from analyzer.file_categorization import FileCategorization
+from analyzer.file_statistics_collector import FileStatisticsCollector
 from analyzer.large_files_identification import LargeFileIdentifier
 from analyzer.permission_reporter import FilePermissionsChecker
 from analyzer.utils.parser import parse_args
@@ -57,11 +58,13 @@ def process_directory(
     file_categorization = FileCategorization()
     permissions_checker = FilePermissionsChecker()
     large_file_identifier = LargeFileIdentifier(size_threshold=size_threshold)
+    file_statistics_collector = FileStatisticsCollector()
 
     for file_path in walk_through_dir(dir_path):
         file_categorization.add_file(file_path)
         permissions_checker.check_permissions(file_path)
         large_file_identifier.add_file(file_path, size_unit=size_unit)
+        file_statistics_collector.add_file(file_path)
 
     file_categorization.display_summary(size_unit=size_unit)
     permissions_checker.print_permission_report()
@@ -77,6 +80,8 @@ def process_directory(
         confirm = Confirm.ask("Do you want to delete the large files?")
         if confirm:
             large_file_identifier.delete_reported_files()
+
+    file_statistics_collector.report_statistics()
 
 
 def main():
