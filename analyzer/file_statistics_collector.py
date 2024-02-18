@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
-from typing import Optional
 
+from bitmath import Byte
 from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
@@ -16,15 +16,6 @@ class FileStatisticsCollector(BaseModel):
     largest_file_size: int = 0
 
     def add_file(self, file_path: Path) -> None:
-        """
-        Add information about a file to the statistics.
-
-        Parameters:
-        - file_path (Path): Path to the file.
-
-        Returns:
-        - None
-        """
         try:
             file_size = file_path.stat().st_size
         except FileNotFoundError:
@@ -41,7 +32,7 @@ class FileStatisticsCollector(BaseModel):
 
     def report_statistics(self) -> None:
         """
-        Print the file statistics report using rich formatting.
+        Print the file statistics report using rich formatting and bitmath for file sizes.
 
         Returns:
         - None
@@ -56,11 +47,21 @@ class FileStatisticsCollector(BaseModel):
         table.add_column("Value", justify="right", style="yellow")
 
         table.add_row("Total Files", str(self.total_files))
-        table.add_row("Total Size", f"{self.total_size / (1024 ** 2):.2f} MB")
-        table.add_row("Average File Size", f"{self.average_size / (1024 ** 2):.2f} MB")
-        table.add_row("Smallest File Size", f"{self.smallest_file_size / 1024:.2f} KB")
         table.add_row(
-            "Largest File Size", f"{self.largest_file_size / (1024 ** 2):.2f} MB"
+            "Total Size",
+            f"{Byte(self.total_size).to_Byte().best_prefix().value:.2f} MB",
+        )
+        table.add_row(
+            "Average File Size",
+            f"{Byte(self.average_size).to_Byte().best_prefix().value:.2f} MB",
+        )
+        table.add_row(
+            "Smallest File Size",
+            f"{Byte(self.smallest_file_size).to_Byte().best_prefix().value:.2f} KB",
+        )
+        table.add_row(
+            "Largest File Size",
+            f"{Byte(self.largest_file_size).to_Byte().best_prefix().value:.2f} MB",
         )
 
         console.print(table)
