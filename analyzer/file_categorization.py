@@ -514,7 +514,7 @@ class FileCategorization:
         category: str = self._get_category(file_extension)
         try:
             size: int = stat(filename_str).st_size
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError):
             size = 0
         return filename_str, file_extension, category, size
 

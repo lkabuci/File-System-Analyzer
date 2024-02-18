@@ -70,8 +70,8 @@ class FilePermissionsChecker:
             octal_permissions = oct(file_stat.st_mode)[-3:]
             if octal_permissions in self.bad_permissions:
                 self.reported_files.append(file_path)
-        except FileNotFoundError:
-            print(f"[red]File not found:[/red] {file_path}")
+        except (FileNotFoundError, OSError):
+            pass
 
     def generate_permission_report(self) -> List[FilePermissionReport]:
         """

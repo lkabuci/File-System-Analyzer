@@ -67,8 +67,8 @@ class LargeFileIdentifier:
             if size > self.convert_threshold(size_threshold, size_unit):
                 entry = self.FileEntry(file_path=file_path, size=size)
                 self.large_files.append(entry)
-        except FileNotFoundError:
-            print(f"[red]File not found:[/red] {file_path}")
+        except (FileNotFoundError, OSError):
+            pass
 
     def convert_threshold(
         self, size_threshold: Optional[int], size_unit: str
