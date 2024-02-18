@@ -1,13 +1,24 @@
 from collections import defaultdict
 from os import stat
 from pathlib import Path
+from typing import DefaultDict, Dict, Union
 
 from bitmath import NIST, Byte
 from rich.console import Console
 from rich.table import Table
 
 
-def convert_size(size: int, target_unit: str):
+def convert_size(size: int, target_unit: str) -> str:
+    """
+    Convert a given size in bytes to the best fitting unit.
+
+    Parameters:
+    - size (int): The size in bytes to be converted.
+    - target_unit (str): The unit to which the size should be converted.
+
+    Returns:
+    str: A string representation of the size in the target unit, rounded to two decimal places.
+    """
     size_in_bytes = Byte(size)
     converted_size = size_in_bytes.best_prefix(system=NIST)
     converted_size_str = "{:.2f} {}".format(converted_size.value, target_unit)
@@ -15,7 +26,7 @@ def convert_size(size: int, target_unit: str):
 
 
 class FileCategorization:
-    category_mapping = {
+    category_mapping: Dict[str, set] = {
         "Text": {
             ".doc",
             ".docx",
@@ -474,35 +485,57 @@ class FileCategorization:
         "Shortcut": {".lnk"},
     }
 
-    def __init__(self):
-        self.grouped_files = defaultdict(
-            lambda: defaultdict(lambda: {"count": 0, "size": 0})
-        )
-        self.extension_to_category = {
+    def __init__(self) -> None:
+        self.grouped_files: DefaultDict[
+            str, DefaultDict[str, Dict[str, Union[int, int]]]
+        ] = defaultdict(lambda: defaultdict(lambda: {"count": 0, "size": 0}))
+        self.extension_to_category: Dict[str, str] = {
             ext: cat for cat, exts in self.category_mapping.items() for ext in exts
         }
-        self.table = Table(title="File Summary")
+        self.table: Table = Table(title="File Summary")
         self.table.add_column("Category")
         self.table.add_column("File Extension")
         self.table.add_column("Number of Files")
         self.table.add_column("Size")
 
-    def _classify_file(self, filename: Path):
-        filename_str = str(filename)
-        file_extension = Path(filename_str).suffix.lower()
-        category = self._get_category(file_extension)
+    def _classify_file(self, filename: Path) -> tuple[str, str, str, int]:
+        """
+        Classify a file based on its filename and get relevant information.
+
+        Parameters:
+        - filename (Path): Path to the file.
+
+        Returns:
+        tuple[str, str, str, int]: A tuple containing file information - filename,
+        file extension, category, and size.
+        """
+        filename_str: str = str(filename)
+        file_extension: str = Path(filename_str).suffix.lower()
+        category: str = self._get_category(file_extension)
         try:
-            size = stat(filename_str).st_size
+            size: int = stat(filename_str).st_size
         except FileNotFoundError:
             size = 0
         return filename_str, file_extension, category, size
 
-    def add_file(self, filename: Path):
+    def add_file(self, filename: Path) -> None:
+        """
+        Add a file to the categorized files.
+
+        Parameters:
+        - filename (Path): Path to the file.
+        """
         file_path, file_extension, category, size = self._classify_file(filename)
         self.grouped_files[category][file_extension]["count"] += 1
         self.grouped_files[category][file_extension]["size"] += size
 
-    def update_table(self, size_unit: str = "bytes"):
+    def update_table(self, size_unit: str = "bytes") -> None:
+        """
+        Update the summary table with the categorized files.
+
+        Parameters:
+        - size_unit (str): Target unit for file sizes (default is "bytes").
+        """
         new_table = Table(title="File Summary")
         new_table.add_column("Category")
         new_table.add_column("File Extension")
@@ -529,10 +562,25 @@ class FileCategorization:
 
         self.table = new_table
 
-    def _get_category(self, file_extension):
+    def _get_category(self, file_extension: str) -> str:
+        """
+        Get the category of a file based on its extension.
+
+        Parameters:
+        - file_extension (str): File extension.
+
+        Returns:
+        str: File category.
+        """
         return self.extension_to_category.get(file_extension, "Other")
 
-    def display_summary(self, size_unit: str = "bytes"):
+    def display_summary(self, size_unit: str = "bytes") -> None:
+        """
+        Display the categorized file summary using the rich library.
+
+        Parameters:
+        - size_unit (str): Target unit for file sizes (default is "bytes").
+        """
         console = Console()
         self.update_table(size_unit=size_unit)
         console.print(self.table)

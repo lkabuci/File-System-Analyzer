@@ -7,6 +7,16 @@ from rich.table import Table
 
 
 def convert_size(size: int, target_unit: str) -> str:
+    """
+    Convert a given size in bytes to the target unit.
+
+    Parameters:
+    - size (int): The size in bytes to be converted.
+    - target_unit (str): The unit to which the size should be converted.
+
+    Returns:
+    str: A string representation of the size in the target unit.
+    """
     units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
     current_unit = units[target_unit]
 
@@ -24,6 +34,12 @@ class LargeFileIdentifier:
         size: int
 
     def __init__(self, size_threshold: Optional[int] = None):
+        """
+        Initialize the LargeFileIdentifier.
+
+        Parameters:
+        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
+        """
         # Default size threshold is 1 MB
         self.size_threshold = (
             size_threshold if size_threshold is not None else 1024 * 1024
@@ -36,6 +52,14 @@ class LargeFileIdentifier:
         size_threshold: Optional[int] = None,
         size_unit: str = "bytes",
     ) -> None:
+        """
+        Add a file to the list of large files if its size exceeds the threshold.
+
+        Parameters:
+        - file_path (Path): Path to the file.
+        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
+        - size_unit (str): Target unit for size comparison (default is "bytes").
+        """
         try:
             size = file_path.stat().st_size
             if size_threshold is None:
@@ -49,6 +73,16 @@ class LargeFileIdentifier:
     def convert_threshold(
         self, size_threshold: Optional[int], size_unit: str
     ) -> Optional[int]:
+        """
+        Convert the size threshold to the target unit.
+
+        Parameters:
+        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
+        - size_unit (str): Target unit for conversion.
+
+        Returns:
+        Optional[int]: Converted size threshold.
+        """
         if size_threshold is None:
             return None
 
@@ -62,6 +96,12 @@ class LargeFileIdentifier:
         return converted_threshold
 
     def scan_and_report(self, size_unit: str = "bytes") -> None:
+        """
+        Scan for large files and print a report.
+
+        Parameters:
+        - size_unit (str): Target unit for file sizes (default is "bytes").
+        """
         if not self.large_files:
             print("[green]No large files found.[/green]")
             return
@@ -77,6 +117,11 @@ class LargeFileIdentifier:
         print(table)
 
     def delete_reported_files(self) -> None:
+        """
+        Delete the files reported as large.
+
+        Prints success or error messages for each deletion.
+        """
         for entry in self.large_files:
             try:
                 entry.file_path.unlink()

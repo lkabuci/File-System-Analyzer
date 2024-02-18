@@ -7,6 +7,15 @@ from rich.table import Table
 
 
 def convert_octal_to_rwx(octal_permissions: str) -> str:
+    """
+    Convert octal permissions to the corresponding 'rwx' format.
+
+    Parameters:
+    - octal_permissions (str): Octal representation of file permissions.
+
+    Returns:
+    str: 'rwx' format representation of the permissions.
+    """
     rwx_permissions = ""
     if not octal_permissions:
         raise ValueError("Empty octal string")
@@ -25,6 +34,9 @@ class FilePermissionsChecker:
         permissions: str
 
     def __init__(self) -> None:
+        """
+        Initialize the FilePermissionsChecker.
+        """
         self.reported_files: List[Path] = []
         self.bad_permissions: List[str] = [
             "777",  # Full permissions for everyone
@@ -47,6 +59,12 @@ class FilePermissionsChecker:
         ]
 
     def check_permissions(self, file_path: Path) -> None:
+        """
+        Check the permissions of a file and add it to the reported files if the permissions are bad.
+
+        Parameters:
+        - file_path (Path): Path to the file.
+        """
         try:
             file_stat = file_path.stat()
             octal_permissions = oct(file_stat.st_mode)[-3:]
@@ -56,6 +74,12 @@ class FilePermissionsChecker:
             print(f"[red]File not found:[/red] {file_path}")
 
     def generate_permission_report(self) -> List[FilePermissionReport]:
+        """
+        Generate a report of files with bad permissions.
+
+        Returns:
+        List[FilePermissionReport]: List of FilePermissionReport instances.
+        """
         reports = []
         for file_path in self.reported_files:
             try:
@@ -86,6 +110,9 @@ class FilePermissionsChecker:
         return reports
 
     def print_permission_report(self) -> None:
+        """
+        Print the report of files with bad permissions using the rich library.
+        """
         reports = self.generate_permission_report()
 
         if reports:
@@ -102,6 +129,11 @@ class FilePermissionsChecker:
             print("No files with bad permissions found.")
 
     def delete_reported_files(self) -> None:
+        """
+        Delete the files reported as having bad permissions.
+
+        Prints success or error messages for each deletion.
+        """
         for file_path in self.reported_files:
             try:
                 file_path.unlink()
