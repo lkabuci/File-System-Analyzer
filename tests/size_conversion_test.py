@@ -66,3 +66,4 @@ def test_large_file_identifier_custom_size_threshold():
 
     assert len(identifier.large_files) == 1
     assert identifier.large_files[0].file_path == large_file
+    large_file.unlink()
