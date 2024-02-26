@@ -46,6 +46,16 @@ clean:
 	@rm -rf $(VENV)
 	@echo "$(GREEN)Cleanup complete.$(RESET)"
 
+# Target: help
+# Display help information about available targets
+help:
+	@echo "$(YELLOW)Available targets:$(RESET)"
+	@echo "  $(GREEN)run$(RESET)         - Run the main application"
+	@echo "  $(GREEN)test$(RESET)        - Build and run tests using Docker"
+	@echo "  $(GREEN)venv$(RESET)        - Create virtual environment and install dependencies"
+	@echo "  $(GREEN)clean$(RESET)       - Remove generated files and virtual environment"
+	@echo "  $(GREEN)help$(RESET)        - Display this help message"
+
 # Target: .PHONY
 # Define phony targets to avoid conflicts with file names
 .PHONY: run test venv clean
