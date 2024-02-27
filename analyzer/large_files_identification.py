@@ -1,101 +1,69 @@
+from bisect import insort_left
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 
-from pydantic import BaseModel
+import bitmath
 from rich import print
+from rich.prompt import Prompt
 from rich.table import Table
 
 
-def convert_size(size: int, target_unit: str) -> str:
-    """
-    Convert a given size in bytes to the target unit.
+@dataclass
+class FileEntry:
+    file_path: Path
+    size: bitmath.Byte
 
-    Parameters:
-    - size (int): The size in bytes to be converted.
-    - target_unit (str): The unit to which the size should be converted.
 
-    Returns:
-    str: A string representation of the size in the target unit.
-    """
-    units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
-    current_unit = units[target_unit]
-
-    for _ in range(units["bytes"], current_unit):
-        size /= 1024.0
-
-    return (
-        f"{size:.2f} {target_unit}" if current_unit > 0 else f"{size:.0f} {target_unit}"
-    )
+PathLike = Union[Path, str]
 
 
 class LargeFileIdentifier:
-    class FileEntry(BaseModel):
-        file_path: Path
-        size: int
+    DEFAULT_THRESHOLD = bitmath.MiB(1)
 
-    def __init__(self, size_threshold: Optional[int] = None):
+    def __init__(self, size_threshold: Optional[str] = None):
         """
         Initialize the LargeFileIdentifier.
 
-        Parameters:
-        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
+        Parameters: - size_threshold (Optional[str]): Threshold for identifying large
+        files, in a human-readable string format (e.g., "100MB", "2 GiB").
         """
-        # Default size threshold is 1 MB
-        self.size_threshold = (
-            size_threshold if size_threshold is not None else 1024 * 1024
-        )
-        self.large_files: List[LargeFileIdentifier.FileEntry] = []
+        self.size_threshold = self._parse_size_threshold(size_threshold)
+        self.large_files: List[FileEntry] = []
 
-    def add_file(
-        self,
-        file_path: Path,
-        size_threshold: Optional[int] = None,
-        size_unit: str = "bytes",
-    ) -> None:
+    def _parse_size_threshold(self, size_threshold: Optional[str] = None):
+        """
+        Parses the size threshold from a human-readable string to bitmath.Byte.
+
+        Args: size_threshold (Optional[str]): Threshold for identifying large files,
+        in a human-readable string format.
+
+        Returns:
+            bitmath.Byte: The parsed size threshold.
+        """
+        if size_threshold is None:
+            return self.DEFAULT_THRESHOLD
+        try:
+            return bitmath.parse_string(size_threshold)
+        except ValueError as e:
+            raise ValueError(f"Invalid size threshold format: {e}")
+
+    def add_file(self, file_path: PathLike) -> None:
         """
         Add a file to the list of large files if its size exceeds the threshold.
 
         Parameters:
-        - file_path (Path): Path to the file.
-        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
-        - size_unit (str): Target unit for size comparison (default is "bytes").
+            - file_path (Path): Path to the file.
         """
         try:
-            size = file_path.stat().st_size
-            if size_threshold is None:
-                size_threshold = self.size_threshold
-            if size > self.convert_threshold(size_threshold, size_unit):
-                entry = self.FileEntry(file_path=file_path, size=size)
-                self.large_files.append(entry)
+            size = bitmath.getsize(path=file_path, bestprefix=True, system=bitmath.SI)
+            if size >= self.size_threshold:
+                file_entry = FileEntry(file_path=file_path, size=size)
+                insort_left(self.large_files, file_entry, key=lambda x: x.size)
         except (FileNotFoundError, OSError):
             pass
 
-    def convert_threshold(
-        self, size_threshold: Optional[int], size_unit: str
-    ) -> Optional[int]:
-        """
-        Convert the size threshold to the target unit.
-
-        Parameters:
-        - size_threshold (Optional[int]): Threshold for identifying large files, in bytes.
-        - size_unit (str): Target unit for conversion.
-
-        Returns:
-        Optional[int]: Converted size threshold.
-        """
-        if size_threshold is None:
-            return None
-
-        units = {"bytes": 0, "KB": 1, "MB": 2, "GB": 3}
-        current_unit = units[size_unit]
-        converted_threshold = size_threshold
-
-        for _ in range(units["bytes"], current_unit):
-            converted_threshold *= 1024
-
-        return converted_threshold
-
-    def scan_and_report(self, size_unit: str = "bytes") -> None:
+    def report_large_files(self) -> None:
         """
         Scan for large files and print a report.
 
@@ -108,11 +76,11 @@ class LargeFileIdentifier:
 
         table = Table(title="Large Files")
         table.add_column("File Path", style="cyan", no_wrap=True)
-        table.add_column(f"Size ({size_unit})", style="magenta")
+        table.add_column("Size", style="magenta")
+        bitmath.format_string = "{value:.2f} {unit}"
 
         for entry in self.large_files:
-            size_formatted = convert_size(entry.size, size_unit)
-            table.add_row(str(entry.file_path), size_formatted)
+            table.add_row(str(entry.file_path), f"[magenta]{entry.size}[/magenta]")
 
         print(table)
 
@@ -125,6 +93,25 @@ class LargeFileIdentifier:
         for entry in self.large_files:
             try:
                 entry.file_path.unlink()
-                print(f"[green]Deleted:[/green] {entry.file_path}")
+                print(f"[green]Deleted:[/green] [cyan]{entry.file_path}[/cyan]")
+            except Exception as e:
+                print(f"[red]Error deleting file {entry.file_path}:[/red] {e}")
+
+    def delete_one_file_at_a_time(self) -> None:
+        """
+        Delete the files reported as large. one by one
+        """
+        for entry in self.large_files:
+            try:
+                response = Prompt.ask(
+                    f"[red]analyzer: [/red]"
+                    f"sure do you want to delete {entry.file_path}",
+                    choices=["y", "N"],
+                    default="n",
+                )
+                if response.lower() != "y":
+                    continue
+                entry.file_path.unlink()
+                print(f"[green]Deleted:[/green] [cyan]{entry.file_path}[/cyan]")
             except Exception as e:
                 print(f"[red]Error deleting file {entry.file_path}:[/red] {e}")

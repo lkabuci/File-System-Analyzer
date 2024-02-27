@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import DefaultDict, Dict, Union
 
 from bitmath import NIST, Byte
-from rich.console import Console
+from rich import print
 from rich.table import Table
 
 
@@ -16,8 +16,8 @@ def convert_size(size: int, target_unit: str) -> str:
     - size (int): The size in bytes to be converted.
     - target_unit (str): The unit to which the size should be converted.
 
-    Returns:
-    str: A string representation of the size in the target unit, rounded to two decimal places.
+    Returns: str: A string representation of the size in the target unit, rounded to
+    two decimal places.
     """
     size_in_bytes = Byte(size)
     converted_size = size_in_bytes.best_prefix(system=NIST)
@@ -189,7 +189,6 @@ class FileCategorization:
             ".vim",
             ".p",
             ".dashtoc",
-            ".org%2f2000%2fsvg%22%20width%3d%2232%22",
         },
         "Spreadsheet": {
             ".csv",
@@ -581,6 +580,8 @@ class FileCategorization:
         Parameters:
         - size_unit (str): Target unit for file sizes (default is "bytes").
         """
-        console = Console()
+        if not self.table.rows:
+            print("[red]No files to categorize.[/red]")
+            return
         self.update_table(size_unit=size_unit)
-        console.print(self.table)
+        print(self.table)
