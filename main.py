@@ -69,7 +69,7 @@ def process_directory(
     file_categorization.display_summary(size_unit=size_unit)
     permissions_checker.print_permission_report()
 
-    if delete_files and permissions_checker.reported_files and not log_file:
+    if delete_files and not permissions_checker.is_report_empty() and not log_file:
         confirm = Confirm.ask("Do you want to delete the files with bad permissions?")
         if confirm:
             permissions_checker.delete_reported_files()
