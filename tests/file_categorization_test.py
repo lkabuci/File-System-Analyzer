@@ -86,3 +86,15 @@ def test_get_category_returns_correct_category():
     file_categorization = FileCategorization()
     assert file_categorization._get_category(".txt") == "Text"
     assert file_categorization._get_category(".nonexistent") == "Other"
+
+
+def test_no_files_added_displays_no_files_message(capsys):
+    file_categorization = FileCategorization()
+    file_categorization.display_summary()
+    captured = capsys.readouterr()
+    assert "No files to categorize." in captured.out
+    assert "File Summary" not in captured.out
+    assert "Category" not in captured.out
+    assert "File Extension" not in captured.out
+    assert "Number of Files" not in captured.out
+    assert "Size" not in captured.out
