@@ -75,7 +75,7 @@ class LargeFileIdentifier:
             return
 
         table = Table(title="Large Files")
-        table.add_column("File Path", style="cyan", no_wrap=True)
+        table.add_column("File Path", style="cyan", no_wrap=False)
         table.add_column("Size", style="magenta")
         bitmath.format_string = "{value:.2f} {unit}"
 
