@@ -3,6 +3,27 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional
 
+from rich import print
+
+RED = "\033[91m"
+RESET = "\033[0m"
+
+
+def valid_path(path: str) -> Path:
+    """
+    Validate the path provided as a command-line argument.
+
+    Args:
+        path (str): The path to be validated.
+
+    Returns:
+        Path: The validated path as a Path object.
+    """
+    path = Path(path)
+    if not path.exists():
+        raise argparse.ArgumentTypeError(f"{RED}Invalid path: {path}{RESET}")
+    return path
+
 
 def parse_args() -> (
     Optional[tuple[Path, Optional[int], bool, Optional[str], Optional[str]]]
@@ -18,7 +39,13 @@ def parse_args() -> (
         description="Command-line tool that analyzes and reports on the file"
         "system structure and usage on a Linux system."
     )
-    parser.add_argument("path", help="Path to the target directory")
+    parser.add_argument(
+        "path",
+        default=".",
+        nargs="?",
+        type=valid_path,
+        help="Path to the target directory (default: current directory)",
+    )
     parser.add_argument(
         "-s", "--size", type=int, help="Optional size threshold for large files"
     )

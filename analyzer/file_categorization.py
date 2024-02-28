@@ -580,8 +580,8 @@ class FileCategorization:
         Parameters:
         - size_unit (str): Target unit for file sizes (default is "bytes").
         """
-        if not self.table.rows:
-            print("[red]No files to categorize.[/red]")
-            return
         self.update_table(size_unit=size_unit)
+        if not self.table.rows:
+            print("[magneta]No files to categorize.[/magneta]")
+            return
         print(self.table)
