@@ -1,20 +1,21 @@
-import tempfile
-import shutil
-from pathlib import Path
-import sys
-from typing import Union
-from typing import Iterable
 import os
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+from typing import Iterable, Union
+
 import pytest
 
 PathLike = Union[Path, str]
 
 
-def create_temp_file(file_name: PathLike, size_bytes: int,
-                     permission: int = 0o644) -> Path:
+def create_temp_file(
+    file_name: PathLike, size_bytes: int, permission: int = 0o644
+) -> Path:
     file_path = Path(tempfile.gettempdir()) / file_name
-    with open(file_path, 'wb') as f:
-        f.write(b'\0' * size_bytes)
+    with open(file_path, "wb") as f:
+        f.write(b"\0" * size_bytes)
     os.chmod(file_path, permission)
     return file_path
 
@@ -28,8 +29,9 @@ def create_temp_directory(directory_name: PathLike, permission: int = 0o755) -> 
     return directory_path
 
 
-def cleanup_temp_files(*file_paths: Iterable[PathLike],
-                       permission: int = 0o644) -> None:
+def cleanup_temp_files(
+    *file_paths: Iterable[PathLike], permission: int = 0o644
+) -> None:
     """Delete the specified temporary files."""
     for file_path in file_paths:
         try:
@@ -40,8 +42,9 @@ def cleanup_temp_files(*file_paths: Iterable[PathLike],
             print(f"Error deleting file {file_path}: {e}", file=sys.stderr)
 
 
-def cleanup_temp_directories(*directory_paths: PathLike,
-                             permission: int = 0o755) -> None:
+def cleanup_temp_directories(
+    *directory_paths: PathLike, permission: int = 0o755
+) -> None:
     """Delete the specified temporary directories."""
     for directory_path in directory_paths:
         path = Path(directory_path)
@@ -92,7 +95,7 @@ def temp_file_path_zero_size():
 
 @pytest.fixture
 def temp_file_path_large_size():
-    temp_file_path = create_temp_file("test_large_file.txt", 10 ** 6)
+    temp_file_path = create_temp_file("test_large_file.txt", 10**6)
     yield temp_file_path
     cleanup_temp_files([temp_file_path])
 

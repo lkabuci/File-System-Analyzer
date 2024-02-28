@@ -99,4 +99,3 @@ def test_large_file_identifier_delete_one_file_at_a_time_skip(
 
     assert "Deleted" not in captured.out
     assert large_file.exists()
-

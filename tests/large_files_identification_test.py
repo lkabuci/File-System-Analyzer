@@ -56,6 +56,7 @@ def test_large_file_identifier_scan_and_report(
     assert "Large Files" in captured.out
     assert "Size" in captured.out
 
+
 def test_large_file_identifier_delete_reported_files(
     test_large_file_identifier, capsys, tmp_path
 ):

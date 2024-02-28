@@ -44,7 +44,7 @@ def log_intro(logger, dir_path, size_threshold, delete_files, log_file):
 
 
 def process_directory(
-    dir_path, size_threshold, delete_files, log_file, size_unit="bytes"
+    dir_path, size_threshold: int, delete_files, log_file, size_unit="bytes"
 ) -> None:
     """
     Process the target directory.
@@ -63,7 +63,7 @@ def process_directory(
     for file_path in walk_through_dir(dir_path):
         file_categorization.add_file(file_path)
         permissions_checker.check_permissions(file_path)
-        large_file_identifier.add_file(file_path, size_unit=size_unit)
+        large_file_identifier.add_file(file_path)
         file_statistics_collector.add_file(file_path)
 
     file_categorization.display_summary(size_unit=size_unit)
@@ -74,7 +74,7 @@ def process_directory(
         if confirm:
             permissions_checker.delete_reported_files()
 
-    large_file_identifier.scan_and_report(size_unit=size_unit)
+    large_file_identifier.report_large_files()
 
     if delete_files and large_file_identifier.large_files and not log_file:
         confirm = Confirm.ask("Do you want to delete the large files?")
