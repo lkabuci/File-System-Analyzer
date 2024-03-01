@@ -28,6 +28,15 @@ class FilePermissionsChecker:
         Initialize the FilePermissionsChecker.
         """
         self.bad_permissions: Set[PermissionType] = generate_full_write_combination()
+        _other_bad_permissions: List[PermissionType] = [
+            PermissionType(permission="---------"),  # No permissions
+            PermissionType(permission="rwxrwxrwx"),  # Full permissions
+            PermissionType(permission="--x--x--x"),  # Execute only
+            PermissionType(permission="r--r--r--"),  # Read only
+            PermissionType(permission="r-xr-xr-x"),  # Read and execute
+        ]
+        for permission in _other_bad_permissions:
+            self.bad_permissions.add(permission)
 
         self._table = Table(
             title="Permission Report",
