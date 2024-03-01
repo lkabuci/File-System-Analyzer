@@ -196,3 +196,10 @@ def test_report(LargeFileIdentifier_, capsys: pytest.CaptureFixture):
     for file in list_of_large_files:
         assert file["name"] in output
         assert str(file["size"].best_prefix(bitmath.SI)) in output
+
+
+def test_delete_files(LargeFileIdentifier_):
+    assert len(LargeFileIdentifier_.large_files) > 0
+    LargeFileIdentifier_.delete_reported_files()
+    for file in LargeFileIdentifier_.large_files:
+        assert not os.path.exists(file.file_path)
