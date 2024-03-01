@@ -10,7 +10,8 @@ from analyzer.file_statistics_collector import FileStatisticsCollector
 from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 
 
-def get_total_size():
+def get_total_size() -> int:
+    """returns the total size of all the files in the fake filesystem"""
     root_dir = Path("/root_dir")
     return sum(file.stat().st_size for file in root_dir.rglob("*") if file.is_file())
 

@@ -56,7 +56,8 @@ class LargeFileIdentifier:
             - file_path (Path): Path to the file.
         """
         try:
-            size = bitmath.getsize(path=file_path, bestprefix=True, system=bitmath.SI)
+            size_in_bytes = Path(file_path).stat().st_size
+            size = bitmath.Byte(size_in_bytes).best_prefix(bitmath.SI)
             if size >= self.size_threshold:
                 file_entry = FileEntry(file_path=file_path, size=size)
                 insort_left(self.large_files, file_entry, key=lambda x: x.size)

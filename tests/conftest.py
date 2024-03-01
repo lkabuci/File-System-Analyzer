@@ -188,5 +188,8 @@ def app_file_system(fs: FakeFilesystem):
             size=file_info["size"],
         )
     yield fs
-    for file_info in fake_filesystem_files:
-        fs.remove_object(file_info["name"])
+    try:
+        for file_info in fake_filesystem_files:
+            fs.remove_object(file_info["name"])
+    except:  # noqa E722
+        pass
