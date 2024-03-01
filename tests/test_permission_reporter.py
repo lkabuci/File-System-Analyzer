@@ -30,7 +30,7 @@ def test_normal_permission_reporter(
 ):
     file_permissions = extract_file_permissions_from_table(permission_instance._table)
     assert (
-        len(file_permissions) == 9
+        len(file_permissions) == 5
     )  # 9 is the number of files that have bad permissions inside fake_filesystem_files
 
 

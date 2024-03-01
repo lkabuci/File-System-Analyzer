@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import List, Optional, Union
 
 import bitmath
-from rich import print
+from rich import box, print
 from rich.prompt import Prompt
 from rich.table import Table
 
@@ -75,7 +75,7 @@ class LargeFileIdentifier:
             print("[green]No large files found.[/green]")
             return
 
-        table = Table(title="Large Files")
+        table = Table(title="Large Files", box=box.HEAVY_EDGE)
         table.add_column("File Path", style="cyan", no_wrap=False)
         table.add_column("Size", style="magenta")
         bitmath.format_string = "{value:.2f} {unit}"

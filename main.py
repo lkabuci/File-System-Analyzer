@@ -66,7 +66,7 @@ def process_directory(
         large_file_identifier.add_file(file_path)
         file_statistics_collector.add_file(file_path)
 
-    file_categorization.display_summary(size_unit=size_unit)
+    file_categorization.display_summary()
     permissions_checker.print_permission_report()
 
     if delete_files and not permissions_checker.is_report_empty() and not log_file:

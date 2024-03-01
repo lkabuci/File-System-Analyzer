@@ -32,7 +32,6 @@ class FilePermissionsChecker:
             PermissionType(permission="---------"),  # No permissions
             PermissionType(permission="rwxrwxrwx"),  # Full permissions
             PermissionType(permission="--x--x--x"),  # Execute only
-            PermissionType(permission="r--r--r--"),  # Read only
             PermissionType(permission="r-xr-xr-x"),  # Read and execute
         ]
         for permission in _other_bad_permissions:
