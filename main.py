@@ -1,5 +1,5 @@
-import logging
-import sys
+from pathlib import Path
+from typing import Optional
 
 from rich.prompt import Confirm
 
@@ -8,17 +8,22 @@ from analyzer.directory_traversal import walk_through_dir
 from analyzer.LargeFiles import LargeFileIdentifier
 from analyzer.Permission import FilePermissionsChecker
 from analyzer.Summary import FileStatisticsCollector
-from analyzer.utils.logger import LogInfo, configure_log_file, log_intro
+from analyzer.utils.logger import setup_logging
 from analyzer.utils.parser import parse_args
 
 
-def process_directory(dir_path, size_threshold: str, delete_files, log_file) -> None:
+def process_directory(
+    dir_path: Path,
+    size_threshold: Optional[str],
+    delete_files: bool,
+    log_file: Optional[str],
+) -> None:
     """
     Process the target directory.
 
     Args:
         dir_path (Path): Path to the target directory.
-        size_threshold (Optional[int]): Size threshold for large files.
+        size_threshold (Optional[str]): Size threshold for large files.
         delete_files (bool): Whether to delete reported files.
         log_file (Optional[str]): Path to the log file.
     """
@@ -56,20 +61,11 @@ def main():
     if arguments.target_dir is None:
         exit(1)
 
-    logging.basicConfig(
-        filename=arguments.log_file,
-        level=logging.INFO,
-        format="%(asctime)s - %(levelname)s - %(message)s",
-    )
-
-    configure_log_file(arguments.log_file)
-    log_intro(
-        LogInfo(
-            target_dir=arguments.target_dir,
-            size_threshold=arguments.size_threshold,
-            delete_files=arguments.delete_files,
-            log_file=arguments.log_file,
-        )
+    setup_logging(
+        log_file=arguments.log_file,
+        target_dir=arguments.target_dir,
+        size_threshold=arguments.size_threshold,
+        delete_files=arguments.delete_files,
     )
 
     process_directory(

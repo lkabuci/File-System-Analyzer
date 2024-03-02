@@ -49,3 +49,21 @@ def log_intro(loginfo: LogInfo):
     logger.info(f"Delete Files Flag: {loginfo.delete_files}")
     logger.info(f"Log File: {loginfo.log_file}")
     logger.info("=" * 50)
+
+
+def setup_logging(log_file, target_dir, size_threshold, delete_files):
+    logging.basicConfig(
+        filename=log_file,
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+
+    configure_log_file(log_file)
+    log_intro(
+        LogInfo(
+            target_dir=target_dir,
+            size_threshold=size_threshold,
+            delete_files=delete_files,
+            log_file=log_file,
+        )
+    )
