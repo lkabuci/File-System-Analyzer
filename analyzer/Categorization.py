@@ -118,12 +118,21 @@ class Categorization(AnalyserInterface):
             title="File Summary",
             box=box.HEAVY_EDGE,
             show_lines=True,
+            title_style="bold magenta",
         )
 
-        table.add_column("Category", justify="center", vertical="middle")
-        table.add_column("File Extension", justify="center", vertical="middle")
-        table.add_column("Number of files", justify="center", vertical="middle")
-        table.add_column("Size", justify="center", vertical="middle")
+        table.add_column(
+            "Category", justify="center", vertical="middle", style="bold cyan"
+        )
+        table.add_column(
+            "File Extension", justify="center", vertical="middle", style="italic"
+        )
+        table.add_column(
+            "Number of files", justify="center", vertical="middle", style="bold magenta"
+        )
+        table.add_column(
+            "Size", justify="center", vertical="middle", style="bold magenta"
+        )
 
         bitmath.format_string = "{value:.2f} {unit}"
 
