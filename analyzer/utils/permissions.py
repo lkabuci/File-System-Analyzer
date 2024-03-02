@@ -7,7 +7,8 @@ from pydantic import BaseModel, constr
 
 
 class PermissionType(BaseModel):
-    permission: constr(pattern=r"^([r-][w-][x-]){3}$")  # type: ignore # noqa: F722
+    permission: str
+    # constr(pattern=r"^([r-][w-][x-]){3}$")  # type: ignore # noqa: F722
 
     # Override the __hash__ method to allow the PermissionType to be used as a key in
     # a set.

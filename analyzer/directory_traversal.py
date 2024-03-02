@@ -27,8 +27,8 @@ def walk_through_dir(root_dir: Union[str, Path]) -> Generator[Path, None, None]:
                     stack.append(child)
                 else:
                     yield child
-        except PermissionError as e:
+        except PermissionError:
             print(
-                f"[red]Permission error accessing directory '{current_path}': {e}. Skipping...[/red]",
+                f"[red]Permission error accessing directory '{current_path}'. Skipping...[/red]",
                 file=sys.stderr,
             )

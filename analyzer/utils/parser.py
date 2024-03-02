@@ -3,10 +3,29 @@ from configparser import ConfigParser
 from pathlib import Path
 from typing import Optional
 
+import bitmath
+from pydantic import BaseModel, Field
 from rich import print
 
 RED = "\033[91m"
 RESET = "\033[0m"
+
+
+class ParsedArgs(BaseModel):
+    """
+    Data model for parsed command-line arguments.
+
+    Attributes:
+        target_dir (Path): Path to the target directory.
+        size_threshold (int): Size threshold for identifying large files.
+        delete_files (bool): Flag indicating whether file deletion prompt is enabled.
+        log_file (Optional[str]): Path to the log file (optional).
+    """
+
+    target_dir: Path
+    size_threshold: str
+    delete_files: bool
+    log_file: Optional[str]
 
 
 def valid_path(path: str) -> Path:
@@ -25,20 +44,17 @@ def valid_path(path: str) -> Path:
     return path
 
 
-def parse_args() -> (
-    Optional[tuple[Path, Optional[int], bool, Optional[str], Optional[str]]]
-):
+def parse_args() -> Optional[ParsedArgs]:
     """
     Parse command-line arguments.
 
     Returns:
-        Optional[tuple[Path, Optional[int], bool, Optional[str]]]: Tuple containing Path to the target directory,
-        optional size parameter, delete flag, and optional log file.
+        Optional[ParsedArgs]: Parsed command-line arguments as an instance of ParsedArgs.
     """
     parser = argparse.ArgumentParser(
-        description="Command-line tool that analyzes and reports on the file"
-        "system structure and usage on a Linux system."
+        description="Command-line tool that analyzes and reports on the filesystem structure and usage on a Linux system."
     )
+
     parser.add_argument(
         "path",
         default=".",
@@ -46,21 +62,27 @@ def parse_args() -> (
         type=valid_path,
         help="Path to the target directory (default: current directory)",
     )
+
     parser.add_argument(
-        "-s", "--size", type=int, help="Optional size threshold for large files"
+        "-s",
+        "--size",
+        type=bitmath.parse_string,
+        default=bitmath.parse_string("1 MiB"),
+        help="Size threshold for identifying large files. "
+        "Enter a number followed by the unit type, e.g., 100 MB. "
+        f"Valid unit types: {bitmath.ALL_UNIT_TYPES} (default: 1 MiB)",
     )
-    parser.add_argument(
-        "--size-unit",
-        choices=["bytes", "KB", "MB", "GB"],
-        default="bytes",
-        help="Unit for displaying size in the summary table (default: bytes)",
-    )
+
     parser.add_argument(
         "-d", "--delete", action="store_true", help="Enable file deletion prompt"
     )
-    parser.add_argument("-l", "--log", type=str, help="Path to the log file")
+
     parser.add_argument(
-        "-c", "--config", type=str, help="Path to the configuration file"
+        "-l", "--log", type=valid_path, default=None, help="Path to the log file"
+    )
+
+    parser.add_argument(
+        "-c", "--config", type=valid_path, help="Path to the configuration file"
     )
 
     args = parser.parse_args()
@@ -72,14 +94,13 @@ def parse_args() -> (
 
     # Set default values or use values from the configuration file
     target_dir = Path(config.get("settings", "path", fallback=args.path))
-    size_threshold = config.getint("settings", "size", fallback=args.size)
+    size_threshold = config.get("settings", "size", fallback=args.size)
     delete_files = config.getboolean("settings", "delete", fallback=args.delete)
     log_file = config.get("settings", "log", fallback=args.log)
 
-    target_dir.mkdir(parents=True, exist_ok=True)
-
-    if not target_dir.is_dir():
-        print("Error: The target path is not a directory.")
-        return None
-
-    return target_dir, size_threshold, delete_files, log_file, args.size_unit
+    return ParsedArgs(
+        target_dir=target_dir,
+        size_threshold=str(size_threshold),
+        delete_files=delete_files,
+        log_file=log_file,
+    )

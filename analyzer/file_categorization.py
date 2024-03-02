@@ -95,7 +95,10 @@ class FileCategorization:
             ),
             "Other",
         )
-        size = filename.stat().st_size
+        try:
+            size = filename.stat().st_size
+        except FileNotFoundError:
+            return
 
         self.category_data[category].number_of_files += 1
         self.category_data[category].total_size += size
