@@ -72,7 +72,6 @@ except Exception as e:
 class FileCategorization:
 
     def __init__(self) -> None:
-        self.data_files: List[FileInfo] = []
         self.category_data = defaultdict(
             lambda: CategoryInfo(
                 name="Other", number_of_files=0, total_size=0, files=[]

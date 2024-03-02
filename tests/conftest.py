@@ -7,7 +7,11 @@ from pyfakefs.fake_filesystem import FakeFile, FakeFilesystem
 
 # list of fake files to be created in the fake file system
 fake_filesystem_files: List[Dict[str, Union[str, Byte, oct]]] = [
-    {"name": "/root_dir/file_100_byte_0644.txt", "size": Byte(100), "perm": 0o644},
+    {
+        "name": "/root_dir/file_100_byte_0644.txt",
+        "size": Byte(100).to_Byte(),
+        "perm": 0o644,
+    },
     {
         "name": "/root_dir/file_100_kb_0444.go",
         "size": KiB(100).to_Byte(),
