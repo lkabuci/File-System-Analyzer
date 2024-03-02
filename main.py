@@ -1,8 +1,5 @@
 import logging
 import sys
-from datetime import datetime
-from pathlib import Path
-from typing import Optional
 
 from rich.prompt import Confirm
 
@@ -11,41 +8,11 @@ from analyzer.file_categorization import FileCategorization
 from analyzer.file_statistics_collector import FileStatisticsCollector
 from analyzer.large_files_identification import LargeFileIdentifier
 from analyzer.permission_reporter import FilePermissionsChecker
+from analyzer.utils.logger import LogInfo, configure_log_file, log_intro
 from analyzer.utils.parser import parse_args
 
 
-def configure_log_file(log_file):
-    """
-    Configure log file redirection if provided.
-    """
-    if log_file:
-        sys.stdout = open(log_file, "a")
-        sys.stderr = open(log_file, "a")
-
-
-def log_intro(logger, dir_path, size_threshold, delete_files, log_file):
-    """
-    Log an introduction entry with relevant information.
-
-    Args:
-        logger (logging.Logger): Logger instance.
-        dir_path (Path): Path to the target directory.
-        size_threshold (Optional[int]): Size threshold for large files.
-        delete_files (bool): Whether to delete reported files.
-        log_file (Optional[str]): Path to the log file.
-    """
-    logger.info("File System Analysis - Starting Analysis")
-    logger.info(f"Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"Target Directory: {dir_path}")
-    logger.info(f"Size Threshold for Large Files: {size_threshold} bytes")
-    logger.info(f"Delete Files Flag: {delete_files}")
-    logger.info(f"Log File: {log_file}")
-    logger.info("=" * 50)
-
-
-def process_directory(
-    dir_path, size_threshold: int, delete_files, log_file, size_unit="bytes"
-) -> None:
+def process_directory(dir_path, size_threshold: str, delete_files, log_file) -> None:
     """
     Process the target directory.
 
@@ -57,7 +24,7 @@ def process_directory(
     """
     file_categorization = FileCategorization()
     permissions_checker = FilePermissionsChecker()
-    large_file_identifier = LargeFileIdentifier(size_threshold=size_threshold)
+    large_file_identifier = LargeFileIdentifier(size_threshold)
     file_statistics_collector = FileStatisticsCollector()
 
     for file_path in walk_through_dir(dir_path):
@@ -85,21 +52,31 @@ def process_directory(
 
 
 def main():
-    dir_path, size_threshold, delete_files, log_file, size_unit = parse_args()
-    if dir_path is None:
+    arguments = parse_args()
+    if arguments.target_dir is None:
         exit(1)
 
     logging.basicConfig(
-        filename=log_file,
+        filename=arguments.log_file,
         level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
     )
-    logger = logging.getLogger()
 
-    configure_log_file(log_file)
-    log_intro(logger, dir_path, size_threshold, delete_files, log_file)
+    configure_log_file(arguments.log_file)
+    log_intro(
+        LogInfo(
+            target_dir=arguments.target_dir,
+            size_threshold=arguments.size_threshold,
+            delete_files=arguments.delete_files,
+            log_file=arguments.log_file,
+        )
+    )
+
     process_directory(
-        dir_path, size_threshold, delete_files, log_file, size_unit=size_unit
+        dir_path=arguments.target_dir,
+        size_threshold=str(arguments.size_threshold),
+        delete_files=arguments.delete_files,
+        log_file=arguments.log_file,
     )
 
 
