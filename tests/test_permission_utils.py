@@ -38,3 +38,29 @@ def test_get_file_permissions(fs: FakeFilesystem):
         create_fakefs_file(fs, file["path"], mode=file["mode"])
         expected_permission = PermissionType(permission=file["expected_permission"])
         assert get_file_permissions(file["path"]) == expected_permission
+
+
+def test_get_file_permissions_nonexistent_file(fs: FakeFilesystem):
+    non_existent_file = "/non_existent.txt"
+
+    with pytest.raises(FileNotFoundError):
+        get_file_permissions(non_existent_file)
+
+
+def test_get_file_permissions_directory(fs: FakeFilesystem):
+    fs.create_dir("/test_dir", perm_bits=0o755)
+    expected_permission = PermissionType(permission="rwxr-xr-x")
+
+    actual_permission = get_file_permissions("/test_dir")
+
+    assert actual_permission == expected_permission
+
+
+def test_get_file_permissions_symlink(fs: FakeFilesystem):
+    create_fakefs_file(fs, "/test.txt", mode=0o644)
+    fs.create_symlink("/link.txt", "/test.txt")
+    expected_permission = PermissionType(permission="rw-r--r--")
+
+    actual_permission = get_file_permissions("/link.txt")
+
+    assert actual_permission == expected_permission
