@@ -7,7 +7,7 @@ import bitmath
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from analyzer.large_files_identification import LargeFileIdentifier
+from analyzer.LargeFiles import LargeFileIdentifier
 from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 
 
@@ -21,7 +21,7 @@ def get_large_files_in_fake_files(
 def LargeFileIdentifier_(fs: FakeFilesystem, app_file_system):  # noqa F811
     instance = LargeFileIdentifier(size_threshold="1024 KiB")
     for file in fake_filesystem_files:
-        instance.add_file(Path(file["name"]))
+        instance.add(Path(file["name"]))
     yield instance
 
 
@@ -43,7 +43,7 @@ def test_add_large_file(fs: FakeFilesystem):
         st_size=large_size,
         create_missing_dirs=True,
     )
-    large_files.add_file(large_file_path)
+    large_files.add(large_file_path)
     assert len(large_files.large_files) == 1
     assert large_files.large_files[0].file_path == large_file_path
     assert large_files.large_files[0].size == bitmath.Byte(large_size)
@@ -62,7 +62,7 @@ def test_add_small_file(fs: FakeFilesystem):
         st_size=small_size,
         create_missing_dirs=True,
     )
-    large_files.add_file(small_file_path)
+    large_files.add(small_file_path)
     assert len(large_files.large_files) == 0
 
 
@@ -71,7 +71,7 @@ def test_default_threshold(fs: FakeFilesystem):
 
     file = "/file.txt"
     fs.create_file(file, st_size=int(large_files.DEFAULT_THRESHOLD.to_Byte().value))
-    large_files.add_file(file)
+    large_files.add(file)
     assert len(large_files.large_files) == 1
     assert large_files.size_threshold == large_files.DEFAULT_THRESHOLD
     assert large_files.large_files[0].size == large_files.DEFAULT_THRESHOLD
@@ -90,7 +90,7 @@ def test_add_file_with_threshold(fs: FakeFilesystem):
         st_size=small_size,
         create_missing_dirs=True,
     )
-    large_files.add_file(small_file_path)
+    large_files.add(small_file_path)
     assert len(large_files.large_files) == 0
 
 
@@ -112,7 +112,7 @@ def test_add_file_larger_than_threshold(fs: FakeFilesystem):
         st_size=large_size,
         create_missing_dirs=True,
     )
-    large_files.add_file(large_file_path)
+    large_files.add(large_file_path)
     assert len(large_files.large_files) == 1
     assert large_files.large_files[0].file_path == large_file_path
     assert large_files.large_files[0].size == bitmath.Byte(large_size)
@@ -151,7 +151,7 @@ def test_check_sorted_files_are_updating(fs: FakeFilesystem):
             file_path=file["name"],
             st_size=int(file["size"].value),
         )
-        large_files_sorted.add_file(file["name"])
+        large_files_sorted.add(file["name"])
 
     assert len(large_files_sorted.large_files) == len(list_of_large_files)
     assert all(
@@ -163,7 +163,7 @@ def test_check_sorted_files_are_updating(fs: FakeFilesystem):
     # Add another large file to check if they are updating
     another_large_file = "/file4.txt"
     fs.create_file(another_large_file, st_size=int(bitmath.KiB(2).to_Byte().value))
-    large_files_sorted.add_file(another_large_file)
+    large_files_sorted.add(another_large_file)
 
     assert len(large_files_sorted.large_files) == len(list_of_large_files) + 1
     assert all(
@@ -183,7 +183,7 @@ def test_report(LargeFileIdentifier_, capsys: pytest.CaptureFixture):
         if file["size"] >= LargeFileIdentifier_.size_threshold
     ]
 
-    LargeFileIdentifier_.report_large_files()
+    LargeFileIdentifier_.report()
 
     output = capsys.readouterr().out
 

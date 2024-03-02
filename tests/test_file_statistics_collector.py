@@ -4,7 +4,7 @@ import bitmath
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from analyzer.file_statistics_collector import FileStatisticsCollector
+from analyzer.Summary import FileStatisticsCollector
 from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 
 

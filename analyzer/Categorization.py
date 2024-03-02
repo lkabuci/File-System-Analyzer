@@ -9,6 +9,8 @@ from pydantic import BaseModel
 from rich import box, print
 from rich.table import Table
 
+from analyzer.AnalyzerInterface import AnalyserInterface
+
 
 class FileInfo(BaseModel):
     filename: Union[Path, str]
@@ -69,7 +71,7 @@ except Exception as e:
     raise SystemExit(1)
 
 
-class FileCategorization:
+class Categorization(AnalyserInterface):
 
     def __init__(self) -> None:
         self.category_data = defaultdict(
@@ -78,7 +80,7 @@ class FileCategorization:
             )
         )
 
-    def add_file(self, filename: Path) -> None:
+    def add(self, filename: Path) -> None:
         """
         Add a file to the categorized files.
 
@@ -108,7 +110,7 @@ class FileCategorization:
             )
         )
 
-    def display_summary(self) -> None:
+    def report(self) -> None:
         """
         Display the categorized file summary
         """

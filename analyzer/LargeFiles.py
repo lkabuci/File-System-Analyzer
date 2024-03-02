@@ -8,6 +8,8 @@ from rich import box, print
 from rich.prompt import Prompt
 from rich.table import Table
 
+from analyzer.AnalyzerInterface import AnalyserInterface
+
 
 @dataclass
 class FileEntry:
@@ -18,7 +20,7 @@ class FileEntry:
 PathLike = Union[Path, str]
 
 
-class LargeFileIdentifier:
+class LargeFileIdentifier(AnalyserInterface):
     DEFAULT_THRESHOLD = bitmath.MiB(1)
 
     def __init__(self, size_threshold: Optional[str] = None):
@@ -52,7 +54,7 @@ class LargeFileIdentifier:
         except ValueError as e:
             raise ValueError(f"Invalid size threshold format: {e}")
 
-    def add_file(self, file_path: PathLike) -> None:
+    def add(self, file_path: PathLike) -> None:
         """
         Add a file to the list of large files if its size exceeds the threshold.
 
@@ -68,7 +70,7 @@ class LargeFileIdentifier:
         except (FileNotFoundError, OSError):
             pass
 
-    def report_large_files(self) -> None:
+    def report(self) -> None:
         """
         Scan for large files and print a report.
 

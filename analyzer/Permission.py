@@ -6,6 +6,7 @@ from pydantic import BaseModel
 from rich import print
 from rich.table import Table
 
+from analyzer.AnalyzerInterface import AnalyserInterface
 from analyzer.utils.permissions import (
     PermissionType,
     generate_full_write_combination,
@@ -18,7 +19,7 @@ class FilePermission(BaseModel):
     permissions: PermissionType
 
 
-class FilePermissionsChecker:
+class FilePermissionsChecker(AnalyserInterface):
     COLOR_HEADER = "bold magenta"
     COLOR_FILE = "blue"
     COLOR_PERMISSION = "green"
@@ -59,7 +60,7 @@ class FilePermissionsChecker:
             no_wrap=False,
         )
 
-    def check_permissions(self, file_path: Path) -> None:
+    def add(self, file_path) -> None:
         """
         Check the permissions of a file and add it to the reported files if the
         permissions are bad.
@@ -75,7 +76,7 @@ class FilePermissionsChecker:
         except (FileNotFoundError, OSError):
             pass
 
-    def print_permission_report(self) -> None:
+    def report(self) -> None:
         """
         Print the report of files with bad permissions using the rich library.
         """
