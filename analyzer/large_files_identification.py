@@ -28,7 +28,11 @@ class LargeFileIdentifier:
         Parameters: - size_threshold (Optional[str]): Threshold for identifying large
         files, in a human-readable string format (e.g., "100MB", "2 GiB").
         """
-        self.size_threshold = self._parse_size_threshold(size_threshold)
+        self.size_threshold = (
+            bitmath.parse_string(size_threshold)
+            if size_threshold
+            else self.DEFAULT_THRESHOLD
+        )
         self.large_files: List[FileEntry] = []
 
     def _parse_size_threshold(self, size_threshold: Optional[str] = None):
