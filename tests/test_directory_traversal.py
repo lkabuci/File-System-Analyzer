@@ -67,4 +67,7 @@ def test_walk_through_dir_with_permission_error(
     fs.create_file(bad_permission_file, st_mode=0o222)
     fs.chmod(dir_with_bad_permission, 0o000)  # Set permission to None
     list(walk_through_dir(dir_with_bad_permission))
-    assert "Permission error accessing directory" in capsys.readouterr().err
+    # Skip the test if the user is not root
+    # Root user doesn't have permission issues
+    if os.getuid() != 0:
+        assert "Permission error accessing directory" in capsys.readouterr().err
