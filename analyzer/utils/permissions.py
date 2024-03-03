@@ -1,7 +1,7 @@
 import os
 import stat
 from pathlib import Path
-from typing import Set
+from typing import Set, Union
 
 from pydantic import BaseModel, constr
 
@@ -43,5 +43,5 @@ def generate_full_write_combination() -> Set[PermissionType]:
     return full_write_combination
 
 
-def get_file_permissions(file_path: Path | str) -> PermissionType:
+def get_file_permissions(file_path: Union[Path, str]) -> PermissionType:
     return PermissionType(permission=stat.filemode(os.stat(file_path).st_mode)[1:])
