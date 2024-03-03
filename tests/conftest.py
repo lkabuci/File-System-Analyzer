@@ -5,8 +5,10 @@ import pytest
 from bitmath import Byte, KiB, MiB
 from pyfakefs.fake_filesystem import FakeFile, FakeFilesystem
 
+PathLike = Union[Path, str]
+
 # list of fake files to be created in the fake file system
-fake_filesystem_files: List[Dict[str, Union[str, Byte, oct]]] = [
+fake_filesystem_files: List[Dict[str, Union[str, Byte, int]]] = [
     {
         "name": "/root_dir/file_100_byte_0644.txt",
         "size": Byte(100).to_Byte(),
@@ -161,11 +163,11 @@ fake_filesystem_files: List[Dict[str, Union[str, Byte, oct]]] = [
 
 
 def create_fakefs_file(
-    fs: FakeFilesystem, filepath: str, mode: oct = 0o644, size: Byte = Byte(100)
+    fs: FakeFilesystem, filepath: PathLike, mode: int = 0o644, size: Byte = Byte(100)
 ) -> Path:
     """Create a fake file in the fake file system."""
     try:
-        file: FakeFile = fs.create_file(
+        fs.create_file(
             file_path=filepath,
             st_mode=mode,
             contents="",
@@ -178,7 +180,7 @@ def create_fakefs_file(
         )
     except FileExistsError:
         pass
-    return Path(file.path)
+    return Path(filepath)
 
 
 @pytest.fixture
@@ -187,8 +189,8 @@ def app_file_system(fs: FakeFilesystem):
     for file_info in fake_filesystem_files:
         create_fakefs_file(
             fs=fs,
-            filepath=file_info["name"],
-            mode=file_info["perm"],
+            filepath=str(file_info["name"]),
+            mode=int(file_info["perm"]),
             size=file_info["size"],
         )
     yield fs

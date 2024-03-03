@@ -29,8 +29,8 @@ def configure_log_file(log_file):
     Configure log file redirection if provided.
     """
     if log_file:
-        sys.stdout = open(log_file, "a")
-        sys.stderr = open(log_file, "a")
+        sys.stdout = open(file=log_file, mode="a", encoding="utf-8")
+        sys.stderr = open(file=log_file, mode="a", encoding="utf-8")
 
 
 def log_intro(loginfo: LogInfo):
@@ -43,15 +43,29 @@ def log_intro(loginfo: LogInfo):
 
     logger = logging.getLogger()
     logger.info("File System Analysis - Starting Analysis")
-    logger.info(f"Date and Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    logger.info(f"Target Directory: {loginfo.target_dir}")
-    logger.info(f"Size Threshold for Large Files: {loginfo.size_threshold} bytes")
-    logger.info(f"Delete Files Flag: {loginfo.delete_files}")
-    logger.info(f"Log File: {loginfo.log_file}")
+    logger.info("Date and Time: %s", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+    logger.info("Target Directory: %s", loginfo.target_dir)
+    logger.info("Size Threshold for Large Files: %s bytes", loginfo.size_threshold)
+    logger.info("Delete Files Flag: %s", loginfo.delete_files)
+    logger.info("Log File: %s", loginfo.log_file)
     logger.info("=" * 50)
 
 
-def setup_logging(log_file, target_dir, size_threshold, delete_files):
+def setup_logging(
+    log_file: Optional[str], target_dir: Path, size_threshold: str, delete_files: bool
+) -> None:
+    """
+    Set up logging configuration.
+
+    Args:
+        log_file (Optional[str]): Path to the log file (optional).
+        target_dir (Path): Path to the target directory.
+        size_threshold (str): Size threshold for identifying large files.
+        delete_files (bool): Flag indicating whether file deletion prompt is enabled.
+
+    Returns:
+        None
+    """
     logging.basicConfig(
         filename=log_file,
         level=logging.INFO,

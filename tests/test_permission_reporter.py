@@ -21,7 +21,7 @@ def extract_file_permissions_from_table(table: Table) -> List[Tuple[str, str]]:
 def permission_instance(fs, app_file_system: FakeFilesystem):  # noqa F811
     perm = FilePermissionsChecker()
     for file in fake_filesystem_files:
-        perm.add(Path(file["name"]))
+        perm.add(str(file["name"]))
     yield perm
 
 
@@ -68,11 +68,11 @@ def test_check_good_permission_file(fs: FakeFilesystem):
 
 def test_multiple_files_with_bad_permissions(fs: FakeFilesystem):
     perm = FilePermissionsChecker()
-    list_of_files_with_bad_permission = [
-        ["/file_000_permission", 0o000],
-        ["/file_777_permission", 0o777],
-        ["/file_555_permission", 0o555],
-        ["/file_752_permission", 0o373],
+    list_of_files_with_bad_permission: List[Tuple[str, int]] = [
+        ("/file_000_permission", 0o000),
+        ("/file_777_permission", 0o777),
+        ("/file_555_permission", 0o555),
+        ("/file_752_permission", 0o373),
     ]
 
     for filename, mode in list_of_files_with_bad_permission:

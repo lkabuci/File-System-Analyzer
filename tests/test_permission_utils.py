@@ -1,3 +1,5 @@
+from typing import Dict, List, Union
+
 import pyfakefs
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
@@ -25,7 +27,7 @@ def test_generate_full_write_combination():
 
 
 def test_get_file_permissions(fs: FakeFilesystem):
-    files = [
+    files: List[Dict[str, Union[int, str]]] = [
         {"path": "/test_1.txt", "mode": 0o644, "expected_permission": "rw-r--r--"},
         {"path": "/test_2.txt", "mode": 0o000, "expected_permission": "---------"},
         {"path": "/test_3.txt", "mode": 0o777, "expected_permission": "rwxrwxrwx"},
@@ -35,12 +37,14 @@ def test_get_file_permissions(fs: FakeFilesystem):
     ]
 
     for file in files:
-        create_fakefs_file(fs, file["path"], mode=file["mode"])
-        expected_permission = PermissionType(permission=file["expected_permission"])
-        assert get_file_permissions(file["path"]) == expected_permission
+        create_fakefs_file(fs, filepath=str(file["path"]), mode=int(file["mode"]))
+        expected_permission = PermissionType(
+            permission=str(file["expected_permission"])
+        )
+        assert get_file_permissions(str(file["path"])) == expected_permission
 
 
-def test_get_file_permissions_nonexistent_file(fs: FakeFilesystem):
+def test_get_file_permissions_nonexistent_file():
     non_existent_file = "/non_existent.txt"
 
     with pytest.raises(FileNotFoundError):

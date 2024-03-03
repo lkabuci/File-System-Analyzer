@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Union
 
 import bitmath
-from rich import print
+import rich
 
 
 class FileStatisticsCollector:
@@ -40,10 +40,14 @@ class FileStatisticsCollector:
         self.average_size = self.total_size / self.total_files
         bitmath.format_string = "{value:.2f} {unit}"
 
-        print("\n[bold][underline]Statistics[/underline][/bold]")
-        print(f"{'Total Files:':<{self.report_key_len}} {self.total_files} file")
-        print(self._format_size_line("Total Size:", self.total_size))
-        print(self._format_size_line("Average File Size:", self.average_size))
-        print(self._format_size_line("Smallest File Size:", self.smallest_file_size))
-        print(self._format_size_line("Largest File Size:", self.largest_file_size))
-        print(f"{'Time Elapsed:':<{self.report_key_len}} {elapsed_time:.2f} seconds")
+        rich.print("\n[bold][underline]Statistics[/underline][/bold]")
+        rich.print(f"{'Total Files:':<{self.report_key_len}} {self.total_files} file")
+        rich.print(self._format_size_line("Total Size:", self.total_size))
+        rich.print(self._format_size_line("Average File Size:", self.average_size))
+        rich.print(
+            self._format_size_line("Smallest File Size:", self.smallest_file_size)
+        )
+        rich.print(self._format_size_line("Largest File Size:", self.largest_file_size))
+        rich.print(
+            f"{'Time Elapsed:':<{self.report_key_len}} {elapsed_time:.2f} seconds"
+        )

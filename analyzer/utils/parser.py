@@ -4,8 +4,7 @@ from pathlib import Path
 from typing import Optional
 
 import bitmath
-from pydantic import BaseModel, Field
-from rich import print
+from pydantic import BaseModel
 
 RED = "\033[91m"
 RESET = "\033[0m"
@@ -38,10 +37,10 @@ def valid_path(path: str) -> Path:
     Returns:
         Path: The validated path as a Path object.
     """
-    path = Path(path)
-    if not path.exists():
+    vpath = Path(path)
+    if not vpath.exists():
         raise argparse.ArgumentTypeError(f"{RED}Invalid path: {path}{RESET}")
-    return path
+    return vpath
 
 
 def parse_args() -> Optional[ParsedArgs]:
@@ -78,7 +77,7 @@ def parse_args() -> Optional[ParsedArgs]:
     )
 
     parser.add_argument(
-        "-l", "--log", type=valid_path, default=None, help="Path to the log file"
+        "-l", "--log", type=str, default=None, help="Path to the log file"
     )
 
     parser.add_argument(

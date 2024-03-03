@@ -2,9 +2,11 @@ import math
 import os
 from collections import Counter
 from pathlib import Path
+from typing import Dict, List, Union
 
 import bitmath
 import pytest
+from bitmath import Byte
 from pyfakefs.fake_filesystem import FakeFilesystem
 
 from analyzer.LargeFiles import LargeFileIdentifier
@@ -13,7 +15,7 @@ from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_
 
 def get_large_files_in_fake_files(
     size: bitmath.Byte = LargeFileIdentifier.DEFAULT_THRESHOLD.to_Byte(),
-):
+) -> List[Dict[str, Union[str, Byte, int]]]:
     return [file for file in fake_filesystem_files if file["size"] >= size]
 
 
@@ -21,7 +23,7 @@ def get_large_files_in_fake_files(
 def LargeFileIdentifier_(fs: FakeFilesystem, app_file_system):  # noqa F811
     instance = LargeFileIdentifier(size_threshold="1024 KiB")
     for file in fake_filesystem_files:
-        instance.add(Path(file["name"]))
+        instance.add(str(file["name"]))
     yield instance
 
 
@@ -195,7 +197,7 @@ def test_report(LargeFileIdentifier_, capsys: pytest.CaptureFixture):
     # content
     for file in list_of_large_files:
         assert file["name"] in output
-        assert str(file["size"].best_prefix(bitmath.SI)) in output
+        assert str(Byte(int(file["size"])).best_prefix(bitmath.SI)) in output
 
 
 def test_delete_files(LargeFileIdentifier_):

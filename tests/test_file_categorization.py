@@ -12,7 +12,7 @@ from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_
 def categorization(fs: FakeFilesystem, app_file_system):  # noqa F811
     categorization_instance = Categorization()
     for file in fake_filesystem_files:
-        categorization_instance.add(Path(file["name"]))
+        categorization_instance.add(str(file["name"]))
     yield categorization_instance
 
 

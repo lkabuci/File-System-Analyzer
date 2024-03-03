@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from rich import box, print
 from rich.table import Table
 
-from analyzer.AnalyzerInterface import AnalyserInterface
+from analyzer.AnalyzerInterface import AnalyserInterface, PathLike
 
 
 class FileInfo(BaseModel):
@@ -26,61 +26,59 @@ class CategoryInfo(BaseModel):
     files: List[FileInfo]
 
 
-"""
-this is an example of CategoryInfo
-[
-    (
-        'Text',               <--- key: category
-        CategoryInfo(         <--- value: CategoryInfo
-            name='Other',
-            number_of_files=1,
-            total_size=0,
-            files=[FileInfo(
-                filename=PosixPath('/tmp.txt'),
-                extension='.txt',
-                category='Text',
-                size=0)       <--- size in Bytes
-            ]
-        )
-    ),
-    (
-        'Video',
-        CategoryInfo(
-            name='Other',
-            number_of_files=1,
-            total_size=0,
-            files=[FileInfo(
-                filename=PosixPath('/video.mp4'),
-                extension='.mp4',
-                category='Video',
-                size=0)
-            ]
-        )
-    ),
-]
-"""
+# this is an example of CategoryInfo
+# [
+#     (
+#         'Text',               <--- key: category
+#         CategoryInfo(         <--- value: CategoryInfo
+#             name='Other',
+#             number_of_files=1,
+#             total_size=0,
+#             files=[FileInfo(
+#                 filename=PosixPath('/tmp.txt'),
+#                 extension='.txt',
+#                 category='Text',
+#                 size=0)       <--- size in Bytes
+#             ]
+#         )
+#     ),
+#     (
+#         'Video',
+#         CategoryInfo(
+#             name='Other',
+#             number_of_files=1,
+#             total_size=0,
+#             files=[FileInfo(
+#                 filename=PosixPath('/video.mp4'),
+#                 extension='.mp4',
+#                 category='Video',
+#                 size=0)
+#             ]
+#         )
+#     ),
+# ]
 
 
 file_path = "config/category.json"
-category_mapping = Dict[str, List[str]]
+category_mapping: Dict[str, List[str]] = {}
 try:
-    with open(file_path, "r") as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         category_mapping = json.load(file)
 except Exception as e:
     print(f"[red]Error reading category file: due to {e}[/red]", file=sys.stderr)
-    raise SystemExit(1)
+    raise SystemExit(1) from e
 
 
 class Categorization(AnalyserInterface):
 
     def __init__(self) -> None:
-        self.category_data = defaultdict(
+        self.category_data: Dict[str, CategoryInfo] = defaultdict(
             lambda: CategoryInfo(
                 name="Other", number_of_files=0, total_size=0, files=[]
             )
         )
 
-    def add(self, filename: Path) -> None:
+    def add(self, filepath: PathLike) -> None:
         """
         Add a file to the categorized files.
 
@@ -88,7 +86,9 @@ class Categorization(AnalyserInterface):
         - filename (Path): Path to the file.
         """
 
-        extension = filename.suffix
+        if isinstance(filepath, str):
+            filepath = Path(filepath)
+        extension = filepath.suffix
         category = next(
             (
                 category
@@ -98,7 +98,7 @@ class Categorization(AnalyserInterface):
             "Other",
         )
         try:
-            size = filename.stat().st_size
+            size = filepath.stat().st_size
         except FileNotFoundError:
             return
 
@@ -106,7 +106,7 @@ class Categorization(AnalyserInterface):
         self.category_data[category].total_size += size
         self.category_data[category].files.append(
             FileInfo(
-                filename=filename, extension=extension, category=category, size=size
+                filename=filepath, extension=extension, category=category, size=size
             )
         )
 

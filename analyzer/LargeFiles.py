@@ -10,14 +10,13 @@ from rich.table import Table
 
 from analyzer.AnalyzerInterface import AnalyserInterface
 
+PathLike = Union[Path, str]
+
 
 @dataclass
 class FileEntry:
-    file_path: Path
+    file_path: PathLike
     size: bitmath.Byte
-
-
-PathLike = Union[Path, str]
 
 
 class LargeFileIdentifier(AnalyserInterface):
@@ -99,7 +98,7 @@ class LargeFileIdentifier(AnalyserInterface):
         """
         for entry in self.large_files:
             try:
-                entry.file_path.unlink()
+                Path(entry.file_path).unlink()
                 print(f"[green]Deleted:[/green] [cyan]{entry.file_path}[/cyan]")
             except Exception as e:
                 print(f"[red]Error deleting file {entry.file_path}:[/red] {e}")
@@ -118,7 +117,7 @@ class LargeFileIdentifier(AnalyserInterface):
                 )
                 if response.lower() != "y":
                     continue
-                entry.file_path.unlink()
+                Path(entry.file_path).unlink()
                 print(f"[green]Deleted:[/green] [cyan]{entry.file_path}[/cyan]")
             except Exception as e:
                 print(f"[red]Error deleting file {entry.file_path}:[/red] {e}")
