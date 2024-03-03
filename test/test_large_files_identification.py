@@ -1,7 +1,6 @@
-import math
 import os
 from collections import Counter
-from pathlib import Path
+from test.conftest import app_file_system, fake_filesystem_files
 from typing import Dict, List, Union
 
 import bitmath
@@ -9,8 +8,7 @@ import pytest
 from bitmath import Byte
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from analyzer.LargeFiles import LargeFileIdentifier
-from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
+from analyzer.large_files import LargeFileIdentifier
 
 
 def get_large_files_in_fake_files(
@@ -20,7 +18,7 @@ def get_large_files_in_fake_files(
 
 
 @pytest.fixture(scope="function")
-def LargeFileIdentifier_(fs: FakeFilesystem, app_file_system):  # noqa F811
+def large_file_identifier(fs: FakeFilesystem, app_file_system):  # noqa F811
     instance = LargeFileIdentifier(size_threshold="1024 KiB")
     for file in fake_filesystem_files:
         instance.add(str(file["name"]))
@@ -107,7 +105,7 @@ def test_add_file_larger_than_threshold(fs: FakeFilesystem):
     large_file_path = "/large_file.txt"
     large_size = int(large_files.size_threshold.to_Byte().value) + 10
 
-    assert len(large_files.large_files) == 0
+    assert large_files.large_files == []
 
     fs.create_file(
         file_path=large_file_path,
@@ -120,22 +118,22 @@ def test_add_file_larger_than_threshold(fs: FakeFilesystem):
     assert large_files.large_files[0].size == bitmath.Byte(large_size)
 
 
-def test_normal_case(fs: FakeFilesystem, LargeFileIdentifier_):
+def test_normal_case(large_file_identifier):
     excepted = [
         file["name"]
         for file in fake_filesystem_files
-        if file["size"] >= LargeFileIdentifier_.size_threshold
+        if file["size"] >= large_file_identifier.size_threshold
     ]
-    output = [str(file.file_path) for file in LargeFileIdentifier_.large_files]
+    output = [str(file.file_path) for file in large_file_identifier.large_files]
 
     assert Counter(excepted) == Counter(output)
 
 
-def test_check_reported_files_sorted(LargeFileIdentifier_):
+def test_check_reported_files_sorted(large_file_identifier):
     assert all(
-        LargeFileIdentifier_.large_files[i].size
-        <= LargeFileIdentifier_.large_files[i + 1].size
-        for i in range(len(LargeFileIdentifier_.large_files) - 1)
+        large_file_identifier.large_files[i].size
+        <= large_file_identifier.large_files[i + 1].size
+        for i in range(len(large_file_identifier.large_files) - 1)
     )
 
 
@@ -175,17 +173,17 @@ def test_check_sorted_files_are_updating(fs: FakeFilesystem):
     )
 
 
-def test_report(LargeFileIdentifier_, capsys: pytest.CaptureFixture):
+def test_report(large_file_identifier, capsys: pytest.CaptureFixture):
 
     capsys.readouterr()
 
     list_of_large_files = [
         file
         for file in fake_filesystem_files
-        if file["size"] >= LargeFileIdentifier_.size_threshold
+        if file["size"] >= large_file_identifier.size_threshold
     ]
 
-    LargeFileIdentifier_.report()
+    large_file_identifier.report()
 
     output = capsys.readouterr().out
 
@@ -200,8 +198,8 @@ def test_report(LargeFileIdentifier_, capsys: pytest.CaptureFixture):
         assert str(Byte(int(file["size"])).best_prefix(bitmath.SI)) in output
 
 
-def test_delete_files(LargeFileIdentifier_):
-    assert len(LargeFileIdentifier_.large_files) > 0
-    LargeFileIdentifier_.delete_reported_files()
-    for file in LargeFileIdentifier_.large_files:
+def test_delete_files(large_file_identifier):
+    assert len(large_file_identifier.large_files) > 0
+    large_file_identifier.delete_reported_files()
+    for file in large_file_identifier.large_files:
         assert not os.path.exists(file.file_path)

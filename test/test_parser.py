@@ -21,7 +21,7 @@ def test_valid_path_existing_directory(fs: FakeFilesystem):
     assert path == Path("/test_dir")
 
 
-def test_valid_path_non_existing_path(fs: FakeFilesystem):
+def test_valid_path_non_existing_path():
     with pytest.raises(argparse.ArgumentTypeError):
         valid_path("/non_existing_path")
 

@@ -1,14 +1,13 @@
 from collections import Counter
 from pathlib import Path
+from test.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 from typing import List, Tuple
 
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
-from rich import print
 from rich.table import Table
 
-from analyzer.Permission import FilePermissionsChecker
-from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
+from analyzer.permissions import FilePermissionsChecker
 
 
 def extract_file_permissions_from_table(table: Table) -> List[Tuple[str, str]]:
@@ -25,9 +24,7 @@ def permission_instance(fs, app_file_system: FakeFilesystem):  # noqa F811
     yield perm
 
 
-def test_normal_permission_reporter(
-    fs: FakeFilesystem, permission_instance: FilePermissionsChecker
-):
+def test_normal_permission_reporter(permission_instance: FilePermissionsChecker):
     file_permissions = extract_file_permissions_from_table(permission_instance._table)
     assert (
         len(file_permissions) == 5

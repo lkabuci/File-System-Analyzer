@@ -1,11 +1,11 @@
 from pathlib import Path
+from test.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 
 import bitmath
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from analyzer.Summary import FileStatisticsCollector
-from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
+from analyzer.summary import FileStatisticsCollector
 
 
 def get_total_size() -> int:
@@ -54,7 +54,9 @@ def test_average_size(fs: FakeFilesystem, collector, capsys: pytest.CaptureFixtu
     excepted_1 = bitmath.Byte(
         get_total_size() / len(fake_filesystem_files)
     ).best_prefix(bitmath.SI)
-    collector.report_statistics()  # cause we only calculating the average once in the report phase (performence reason)
+    # because we're only calculating the average once in the report phase (performance
+    # reason)
+    collector.report_statistics()
 
     assert str(excepted_1) in capsys.readouterr().out
 
@@ -79,7 +81,7 @@ def test_smallest_file_size(fs: FakeFilesystem, collector):
     output = collector.smallest_file_size
     assert output == excepted
 
-    # Add a new file with 1 bytes
+    # Add a new file with 1 byte
     create_fakefs_file(fs=fs, filepath=smallest_file, size=bitmath.Byte(1))
     collector.add_file(Path(smallest_file))
     assert collector.smallest_file_size == Path(smallest_file).stat().st_size
@@ -100,9 +102,7 @@ def test_largest_file_size(fs: FakeFilesystem, collector):
 
 
 # Now test them all combined
-def test_report_statistics(
-    fs: FakeFilesystem, collector, capsys: pytest.CaptureFixture
-):
+def test_report_statistics(collector, capsys: pytest.CaptureFixture):
     capsys.readouterr()
     collector.report_statistics()
     output = capsys.readouterr().out

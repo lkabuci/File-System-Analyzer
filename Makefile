@@ -20,7 +20,7 @@ run: $(VENV)/bin/activate
 	@$(PYTHON) main.py .
 
 # Target: test
-# Build and run tests using Docker
+# Build and run test using Docker
 test: $(VENV)/bin/activate
 	@echo "$(YELLOW)Running tests using Docker...$(RESET)"
 	@docker compose up --build

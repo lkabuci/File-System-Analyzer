@@ -1,6 +1,6 @@
+from test.conftest import create_fakefs_file
 from typing import Dict, List, Union
 
-import pyfakefs
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
@@ -9,7 +9,6 @@ from analyzer.utils.permissions import (
     generate_full_write_combination,
     get_file_permissions,
 )
-from tests.conftest import app_file_system, create_fakefs_file
 
 
 def test_generate_full_write_combination():

@@ -3,11 +3,11 @@ from typing import Optional
 
 from rich.prompt import Confirm
 
-from analyzer.Categorization import Categorization
+from analyzer.categorization import Categorization
 from analyzer.directory_traversal import walk_through_dir
-from analyzer.LargeFiles import LargeFileIdentifier
-from analyzer.Permission import FilePermissionsChecker
-from analyzer.Summary import FileStatisticsCollector
+from analyzer.large_files import LargeFileIdentifier
+from analyzer.permissions import FilePermissionsChecker
+from analyzer.summary import FileStatisticsCollector
 
 
 def process_files(

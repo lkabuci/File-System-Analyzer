@@ -1,23 +1,20 @@
 import os
 from pathlib import Path
+from test.conftest import PathLike, app_file_system, fake_filesystem_files
 
-import pyfakefs
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
-from pyfakefs.fake_filesystem_unittest import Patcher
-from rich import print
 
 from analyzer.directory_traversal import walk_through_dir
-from tests import conftest
-from tests.conftest import app_file_system, fake_filesystem_files
 
 
-def test_normal_walk_through_dir(fs, app_file_system):  # noqa F811
-    output = list(walk_through_dir("/root_dir"))
+def test_normal_walk_through_dir(fs: FakeFilesystem, app_file_system):  # noqa F811
+    # output = list(walk_through_dir("/root_dir"))
+    output = [str(file) for file in walk_through_dir("/root_dir")]
     assert len(output) == len(fake_filesystem_files)
     for item in fake_filesystem_files:
-        assert Path(item["name"]) in output  # check if all items are in the output
-        assert output.count(Path(item["name"])) == 1  # check for duplicates
+        assert item["name"] in output  # check if all items are in the output
+        assert output.count(str(item["name"])) == 1  # check for duplicates
 
 
 def test_walk_through_dir_with_empty_directory(
@@ -67,7 +64,7 @@ def test_walk_through_dir_with_permission_error(
     fs.create_file(bad_permission_file, st_mode=0o222)
     fs.chmod(dir_with_bad_permission, 0o000)  # Set permission to None
     list(walk_through_dir(dir_with_bad_permission))
-    # Skip the test if the user is not root
+    # Skip the test if the user is not root.
     # Root user doesn't have permission issues
     if os.getuid() != 0:
         assert "Permission error accessing directory" in capsys.readouterr().err

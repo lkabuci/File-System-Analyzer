@@ -1,11 +1,11 @@
 from pathlib import Path
+from test.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
 
 import bitmath
 import pytest
 from pyfakefs.fake_filesystem import FakeFilesystem
 
-from analyzer.Categorization import Categorization
-from tests.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
+from analyzer.categorization import Categorization
 
 
 @pytest.fixture(scope="function")
@@ -110,13 +110,15 @@ def test_display_summary_multiple_files_same_category(
 def test_large_filesystem(categorization, capsys: pytest.CaptureFixture):
     capsys.readouterr()
 
-    # Check that the number of files in the categorization is the same as the number of files in the filesystem
+    # Check that the number of files in the categorization is the same as the number
+    # of files in the filesystem
     assert sum(
         category_info.number_of_files
         for category_info in categorization.category_data.values()
     ) == len(fake_filesystem_files)
 
-    # Check that the total size of the files in the categorization is the same as the total size of the files in the filesystem
+    # Check that the total size of the files in the categorization is the same as the
+    # total size of the files in the filesystem
     assert sum(
         category_info.total_size
         for category_info in categorization.category_data.values()

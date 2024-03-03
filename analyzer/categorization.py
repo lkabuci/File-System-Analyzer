@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from rich import box, print
 from rich.table import Table
 
-from analyzer.AnalyzerInterface import AnalyserInterface, PathLike
+from analyzer.analyzer_interface import AnalyserInterface, PathLike
 
 
 class FileInfo(BaseModel):
@@ -99,7 +99,7 @@ class Categorization(AnalyserInterface):
         )
         try:
             size = filepath.stat().st_size
-        except FileNotFoundError:
+        except (FileNotFoundError, OSError):
             return
 
         self.category_data[category].number_of_files += 1

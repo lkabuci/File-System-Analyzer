@@ -32,6 +32,6 @@ jobs:
         isort --check-only .
         flake8 .
 
-    - name: Run unit tests
-      run: pytest -v tests
+    - name: Run unit test
+      run: pytest -v test
 

@@ -8,7 +8,7 @@ from rich import box, print
 from rich.prompt import Prompt
 from rich.table import Table
 
-from analyzer.AnalyzerInterface import AnalyserInterface
+from analyzer.analyzer_interface import AnalyserInterface
 
 PathLike = Union[Path, str]
 
@@ -40,7 +40,7 @@ class LargeFileIdentifier(AnalyserInterface):
         """
         Parses the size threshold from a human-readable string to bitmath.Byte.
 
-        Args: size_threshold (Optional[str]): Threshold for identifying large files,
+        Args: size_threshold (Optional[str]): Threshold for identifying large files
         in a human-readable string format.
 
         Returns:
@@ -105,7 +105,7 @@ class LargeFileIdentifier(AnalyserInterface):
 
     def delete_one_file_at_a_time(self) -> None:
         """
-        Delete the files reported as large. one by one
+        Delete the files reported as large. One by one
         """
         for entry in self.large_files:
             try:

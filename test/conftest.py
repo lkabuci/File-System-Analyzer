@@ -3,7 +3,7 @@ from typing import Dict, List, Union
 
 import pytest
 from bitmath import Byte, KiB, MiB
-from pyfakefs.fake_filesystem import FakeFile, FakeFilesystem
+from pyfakefs.fake_filesystem import FakeFilesystem
 
 PathLike = Union[Path, str]
 

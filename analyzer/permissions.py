@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from rich import print
 from rich.table import Table
 
-from analyzer.AnalyzerInterface import AnalyserInterface
+from analyzer.analyzer_interface import AnalyserInterface
 from analyzer.utils.permissions import (
     PermissionType,
     generate_full_write_combination,

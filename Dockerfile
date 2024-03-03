@@ -11,4 +11,4 @@ RUN set -ex &&\
 
 COPY . /app
 
-ENTRYPOINT [ "pytest", "-v", "tests/" ]
+ENTRYPOINT [ "pytest", "-v", "test/" ]

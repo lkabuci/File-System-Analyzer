@@ -1,3 +1,4 @@
+# pylint: disable=missing-docstring
 import sys
 
 from analyzer.file_processing import process_directory
