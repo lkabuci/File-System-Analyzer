@@ -6,8 +6,10 @@ from typing import Union
 import bitmath
 import rich
 
+from analyzer.analyzer_interface import AnalyserInterface, PathLike
 
-class FileStatisticsCollector:
+
+class Summary(AnalyserInterface):
     total_files: int = 0
     total_size: int = 0
     average_size: float = 0.0
@@ -16,7 +18,7 @@ class FileStatisticsCollector:
     start_time: float = time.time()
     report_key_len: int = len("Smallest File Size:   ")
 
-    def add_file(self, file_path: Path) -> None:
+    def add(self, file_path: PathLike) -> None:
         try:
             file_size = stat(file_path).st_size
         except (FileNotFoundError, OSError):
@@ -32,7 +34,7 @@ class FileStatisticsCollector:
         formatted_value = bitmath.Byte(value).best_prefix(bitmath.SI)
         return f"{key.ljust(self.report_key_len)} {formatted_value}"
 
-    def report_statistics(self) -> None:
+    def report(self) -> None:
         end_time = time.time()
         elapsed_time = end_time - self.start_time
         if self.total_files == 0:

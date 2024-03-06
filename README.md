@@ -123,7 +123,7 @@ $ ./.env/bin/python3 main.py [PATH] [OPTIONS]
 
 * Log the output of the program to a file
 ```commandline
- python3 main.py . --size 100000 -l file.log
+ python3 main.py . --size '10 MiB' -l file.log
 ```
 
 * Run unittests inside a Docker container

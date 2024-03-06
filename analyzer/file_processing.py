@@ -7,7 +7,7 @@ from analyzer.categorization import Categorization
 from analyzer.directory_traversal import walk_through_dir
 from analyzer.large_files import LargeFileIdentifier
 from analyzer.permissions import FilePermissionsChecker
-from analyzer.summary import FileStatisticsCollector
+from analyzer.summary import Summary
 
 
 def process_files(
@@ -15,13 +15,13 @@ def process_files(
     file_categorization: Categorization,
     permissions_checker: FilePermissionsChecker,
     large_file_identifier: LargeFileIdentifier,
-    file_statistics_collector: FileStatisticsCollector,
+    file_statistics_collector: Summary,
 ) -> None:
     for file_path in walk_through_dir(dir_path):
         file_categorization.add(file_path)
         permissions_checker.add(file_path)
         large_file_identifier.add(file_path)
-        file_statistics_collector.add_file(file_path)
+        file_statistics_collector.add(file_path)
 
 
 def handle_permissions(
@@ -55,7 +55,7 @@ def process_directory(
     file_categorization = Categorization()
     permissions_checker = FilePermissionsChecker()
     large_file_identifier = LargeFileIdentifier(size_threshold)
-    file_statistics_collector = FileStatisticsCollector()
+    file_statistics_collector = Summary()
 
     process_files(
         dir_path,
@@ -70,4 +70,4 @@ def process_directory(
     handle_permissions(delete_files, permissions_checker, log_file)
     large_file_identifier.report()
     handle_large_files(delete_files, large_file_identifier, log_file)
-    file_statistics_collector.report_statistics()
+    file_statistics_collector.report()

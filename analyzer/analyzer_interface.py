@@ -9,7 +9,7 @@ class AnalyserInterface(ABC):
     @abstractmethod
     def add(self, filepath: PathLike):
         """
-        Absrtact method to add a file to the analyser.
+        Abstract method to add a file to the analyzer.
         """
         pass
 
