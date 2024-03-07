@@ -48,10 +48,12 @@ def parse_args() -> Optional[ParsedArgs]:
     Parse command-line arguments.
 
     Returns:
-        Optional[ParsedArgs]: Parsed command-line arguments as an instance of ParsedArgs.
+        Optional[ParsedArgs]: Parsed command-line arguments
+            as an instance of ParsedArgs.
     """
     parser = argparse.ArgumentParser(
-        description="Command-line tool that analyzes and reports on the filesystem structure and usage on a Linux system."
+        description="Command-line tool that analyzes and reports on the"
+        "filesystem structure and usage on a Linux system."
     )
 
     parser.add_argument(

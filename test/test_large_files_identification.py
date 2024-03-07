@@ -1,6 +1,6 @@
 import os
 from collections import Counter
-from test.conftest import app_file_system, fake_filesystem_files
+from test.conftest import fake_filesystem_files
 from typing import Dict, List, Union
 
 import bitmath
@@ -174,7 +174,6 @@ def test_check_sorted_files_are_updating(fs: FakeFilesystem):
 
 
 def test_report(large_file_identifier, capsys: pytest.CaptureFixture):
-
     capsys.readouterr()
 
     list_of_large_files = [

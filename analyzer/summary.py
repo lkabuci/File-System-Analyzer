@@ -1,6 +1,5 @@
 import time
 from os import stat
-from pathlib import Path
 from typing import Union
 
 import bitmath

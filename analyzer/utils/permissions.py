@@ -3,7 +3,7 @@ import stat
 from pathlib import Path
 from typing import Set, Union
 
-from pydantic import BaseModel, constr
+from pydantic import BaseModel
 
 
 class PermissionType(BaseModel):

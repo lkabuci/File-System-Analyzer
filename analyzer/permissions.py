@@ -2,11 +2,11 @@ import os
 from pathlib import Path
 from typing import List, Set, Union
 
+import rich
 from pydantic import BaseModel
-from rich import print
 from rich.table import Table
 
-from analyzer.analyzer_interface import AnalyserInterface
+from analyzer.analyzer_interface import AnalyserInterface, PathLike
 from analyzer.utils.permissions import (
     PermissionType,
     generate_full_write_combination,
@@ -60,19 +60,19 @@ class FilePermissionsChecker(AnalyserInterface):
             no_wrap=False,
         )
 
-    def add(self, file_path) -> None:
+    def add(self, filepath: PathLike) -> None:
         """
-        Check the permissions of a file and add it to the reported files if the
-        permissions are bad.
+        Check the permissions of a file and add it to the
+        reported files if the permissions are bad.
 
         Parameters:
         - file_path (Path): Path to the file.
         """
         try:
-            file_permission: PermissionType = get_file_permissions(file_path)
+            file_permission: PermissionType = get_file_permissions(filepath)
             if file_permission not in self.bad_permissions:
                 return
-            self._table.add_row(str(file_path), file_permission.permission)
+            self._table.add_row(str(filepath), file_permission.permission)
         except (FileNotFoundError, OSError):
             pass
 
@@ -81,9 +81,9 @@ class FilePermissionsChecker(AnalyserInterface):
         Print the report of files with bad permissions using the rich library.
         """
         if self._table.rows:
-            print(self._table)
+            rich.print(self._table)
             return
-        print("No files with bad permissions found.")
+        rich.print("No files with bad permissions found.")
 
     def is_report_empty(self) -> bool:
         """
@@ -109,6 +109,6 @@ class FilePermissionsChecker(AnalyserInterface):
         """
         try:
             os.remove(file_path)
-            print(f"[green]Deleted:[/green] {file_path}")
+            rich.print(f"[green]Deleted:[/green] {file_path}")
         except Exception as e:
-            print(f"[red]Error deleting file {file_path}:[/red] {e}")
+            rich.print(f"[red]Error deleting file {file_path}:[/red] {e}")

@@ -1,6 +1,6 @@
 from collections import Counter
 from pathlib import Path
-from test.conftest import app_file_system, create_fakefs_file, fake_filesystem_files
+from test.conftest import create_fakefs_file, fake_filesystem_files
 from typing import List, Tuple
 
 import pytest
