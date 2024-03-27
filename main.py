@@ -1,5 +1,8 @@
 # pylint: disable=missing-docstring
+import platform
 import sys
+
+from rich import print as pr
 
 from analyzer.file_processing import process_directory
 from analyzer.utils.logger import setup_logging
@@ -37,5 +40,22 @@ def main():
             sys.stderr = sys.__stderr__
 
 
+def is_valid_environment() -> bool:
+    if platform.system() != "Linux":
+        pr("[bold red]Error:[/] This tool is designed to run on Linux systems only.")
+        pr("[bold red]Please run this script on a Linux system to proceed.[/]")
+        return False
+
+    if platform.python_version_tuple()[0] < "3":
+        pr("[bold red]Error:[/] This tool is designed to run on Python 3.")
+        pr("[bold red]Please use Python 3 to run this script.[/]")
+        return False
+
+    return True
+
+
 if __name__ == "__main__":
+    if not is_valid_environment():
+        sys.exit(1)
+
     main()
