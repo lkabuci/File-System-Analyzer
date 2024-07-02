@@ -1,6 +1,7 @@
 import sys
+from collections import deque
 from pathlib import Path
-from typing import Generator, List, Union
+from typing import Generator, Union
 
 import rich
 
@@ -17,19 +18,19 @@ def walk_through_dir(root_dir: Union[str, Path]) -> Generator[Path, None, None]:
         in the directory tree.
     """
     root_path = Path(root_dir)
-    stack: List[Path] = [root_path]
+    stack = deque([root_path])
 
     while stack:
         current_path = stack.pop()
         yield from process_path(stack, current_path)
 
 
-def process_path(stack: List[Path], current_path: Path) -> Generator[Path, None, None]:
+def process_path(stack: deque, current_path: Path) -> Generator[Path, None, None]:
     """
     Process a given path, yielding files and handling directories.
 
     Args:
-        stack (List[Path]): The stack used for directory traversal.
+        stack (deque): The stack used for directory traversal.
         current_path (Path): The path to process.
 
     Yields:
